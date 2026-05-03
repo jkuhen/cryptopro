@@ -1,0 +1,37 @@
+[ {
+  "symbol" : "BTCUSDT",
+  "sourceFile" : "Binance_BTCUSDT_d.csv",
+  "replayedCandles" : 3165,
+  "totalTrades" : 23,
+  "wins" : 8,
+  "losses" : 15,
+  "winRatePercent" : 34.78,
+  "netProfit" : -26953.06,
+  "profitFactor" : 0.66,
+  "maxDrawdown" : 37389.34,
+  "maxDrawdownPercent" : 358.26
+}, {
+  "symbol" : "ETHUSDT",
+  "sourceFile" : "Binance_ETHUSDT_d.csv",
+  "replayedCandles" : 3165,
+  "totalTrades" : 26,
+  "wins" : 11,
+  "losses" : 15,
+  "winRatePercent" : 42.31,
+  "netProfit" : 966.18,
+  "profitFactor" : 1.25,
+  "maxDrawdown" : 1184.94,
+  "maxDrawdownPercent" : 390.03
+}, {
+  "symbol" : "SOLUSDT",
+  "sourceFile" : "Binance_SOLUSDT_d.csv",
+  "replayedCandles" : 2075,
+  "totalTrades" : 20,
+  "wins" : 12,
+  "losses" : 8,
+  "winRatePercent" : 60.0,
+  "netProfit" : 113.39,
+  "profitFactor" : 1.67,
+  "maxDrawdown" : 44.73,
+  "maxDrawdownPercent" : 161.3
+} ]

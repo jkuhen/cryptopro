@@ -1,0 +1,31 @@
+server:
+  port: 0
+
+cryptopro:
+  data:
+    provider: mock
+  ai:
+    model:
+      provider: baseline
+    retraining:
+      enabled: false
+  execution:
+    provider: paper
+    live-enabled: false
+    enabled: true
+    base-order-quantity: 1.0
+    max-partial-entries: 2
+    slippage-tolerance-bps: 20.0
+    limit-offset-bps: 1.0
+  risk:
+    account-equity-usd: 10000
+    risk-per-trade-percent: 1.5
+    daily-loss-cap-percent: 5.0
+    max-concurrent-trades: 5
+    atr-period: 14
+    atr-stop-multiplier: 2.0
+  paper-portfolio:
+    initial-cash-usd: 10000
+    fee-rate: 0.001
+    max-equity-points: 500
+

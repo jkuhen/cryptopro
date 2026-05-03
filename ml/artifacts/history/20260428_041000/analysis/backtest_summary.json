@@ -1,0 +1,26 @@
+﻿[
+    {
+        "strategy":  "sma20_50",
+        "symbols":  3,
+        "avg_total_return":  22.951793902955696,
+        "avg_cagr":  0.54464532195258675,
+        "avg_sharpe":  0.83090476729431728,
+        "avg_max_drawdown":  -0.72468296314509539
+    },
+    {
+        "strategy":  "buy_and_hold",
+        "symbols":  3,
+        "avg_total_return":  16.287965154253978,
+        "avg_cagr":  0.47876761345846947,
+        "avg_sharpe":  0.51457688864444029,
+        "avg_max_drawdown":  -0.91140828535474283
+    },
+    {
+        "strategy":  "rsi_mean_reversion",
+        "symbols":  3,
+        "avg_total_return":  0.1249203145275916,
+        "avg_cagr":  -0.020468233409121,
+        "avg_sharpe":  -0.029334131107794436,
+        "avg_max_drawdown":  -0.66285252348688284
+    }
+]

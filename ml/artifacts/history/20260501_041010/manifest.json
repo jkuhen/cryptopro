@@ -1,0 +1,10 @@
+{
+  "version" : "20260501_041010",
+  "generatedAtUtc" : "2026-05-01T04:10:11.620904300Z",
+  "sourceFiles" : [ "Binance_BTCUSDT_d.csv", "Binance_ETHUSDT_d.csv", "Binance_SOLUSDT_d.csv" ],
+  "symbols" : [ "BTCUSDT", "ETHUSDT", "SOLUSDT" ],
+  "candleRows" : 8405,
+  "featureRows" : 8405,
+  "trainableRows" : 8402,
+  "copiedAnalysis" : [ "backtest_metrics_by_symbol.csv", "backtest_summary.csv", "backtest_summary.json", "equity_curves.csv" ]
+}

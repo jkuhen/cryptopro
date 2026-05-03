@@ -1,0 +1,302 @@
+spring:
+  application:
+    name: cryptopro
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cryptopro
+    username: cryptopro
+    password: cryptopro
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  jpa:
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          time_zone: UTC
+          batch_size: 200
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:jkuhen18@gmail.com}
+    password: ${SPRING_MAIL_PASSWORD:gwchoqipdyubfcyl}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${SPRING_MAIL_SMTP_STARTTLS_ENABLE:true}
+          connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:5000}
+          timeout: ${SPRING_MAIL_TIMEOUT:5000}
+          writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:5000}
+
+server:
+  port: 8081
+
+cryptopro:
+  demo:
+    runner:
+      enabled: false
+
+  backfill:
+    csv:
+      enabled: false
+      data-dir: data
+      file-pattern: "Binance_*USDT_d.csv"
+      target-timeframe: H1
+      exit-on-complete: true
+    binance:
+      enabled: false
+      symbols: ""
+      start-time: ""
+      end-time: ""
+      page-size: 1000
+      sleep-ms: 200
+      exit-on-complete: true
+
+  data:
+    provider: binance
+
+  binance:
+    base-url: https://api.binance.com
+    futures-base-url: https://fapi.binance.com
+    default-symbol: BTCUSDT
+    symbol-map:
+      BTCUSDT: BTCUSDT
+      ETHUSDT: ETHUSDT
+      SOLUSDT: SOLUSDT
+    websocket-url: wss://stream.binance.com:9443
+    websocket-enabled: true
+    websocket-symbols:
+      - BTCUSDT
+      - ETHUSDT
+      - SOLUSDT
+    open-interest-period: 5m
+    sync-enabled: true
+    sync-cron: "0 * * * * *"
+    sync-lookback-candles: 180
+    rest-max-retries: 3
+    rest-retry-backoff-ms: 1000
+    proxy-enabled: false
+    proxy-host: "178.20.29.226"
+    proxy-port: 1080
+    proxy-type: SOCKS
+    proxy-username: "mix353XE3MTBK"
+    proxy-password: "8ukB5FV8"
+
+  kraken:
+    websocket-url: wss://ws.kraken.com/v2
+    default-symbol: BTCUSDT
+    symbol-map:
+      BTCUSDT: BTC/USD
+      ETHUSDT: ETH/USD
+      SOLUSDT: SOL/USD
+    websocket-enabled: true
+    websocket-symbols:
+      - BTCUSDT
+      - ETHUSDT
+      - SOLUSDT
+    book-depth: 10
+    trade-cache-size: 300
+
+  luno:
+    base-url: https://api.luno.com
+    api-key: ${LUNO_API_KEY:}
+    api-secret: ${LUNO_API_SECRET:}
+    signed-requests-enabled: true
+    signature-header: X-LUNO-SIGNATURE
+    nonce-header: X-LUNO-NONCE
+    default-pair: BTCUSDT
+    symbol-map:
+      BTCUSDT: BTCUSDT
+      ETHUSDT: ETHUSDT
+      SOLUSDT: SOLUSDT
+    futures-enabled: false
+    futures-base-url: https://api.luno.com
+    default-futures-pair: BTCUSDT-PERP
+    futures-symbol-map:
+      BTCUSDT: BTCUSDT-PERP
+      ETHUSDT: ETHUSDT-PERP
+      SOLUSDT: SOLUSDT-PERP
+    futures-market-order-path: /api/2/futures/marketorder
+    futures-limit-order-path: /api/2/futures/postorder
+    futures-order-status-path-template: /api/2/futures/orders/{orderId}
+
+  preprocessing:
+    spike-stddev-multiplier: 3.0
+    volatility-low-threshold: 0.002
+    volatility-high-threshold: 0.008
+
+  strategy:
+    weights:
+      h1: 0.5
+      m15: 0.3
+      m5: 0.2
+      final-bias: 0.5
+      final-smc: 0.3
+      final-derivatives: 0.2
+    smc:
+      lookback-candles: 24
+      bos-close-buffer-percent: 0.0005
+      sweep-buffer-percent: 0.0003
+      min-fair-value-gap-percent: 0.0008
+      bos-weight: 0.4
+      liquidity-sweep-weight: 0.35
+      fair-value-gap-weight: 0.25
+    thresholds:
+      entry-threshold: 0.18
+      direction-threshold: 0.05
+      disagreement-penalty: 0.6
+      min-size-multiplier: 0.25
+      trend-scale-denominator: 0.02
+      trend-direction-cutoff: 0.08
+      trend-neutral-dampening: 0.5
+      funding-extreme-rate: 0.01
+      derivatives-direction-cutoff: 0.12
+      derivatives-imbalance-scale: 0.2
+      derivatives-imbalance-cap: 0.2
+      quality-hard-block: 0.35
+      decision-direction-cutoff: 0.1
+      oi-price-up-score: 0.6
+      oi-price-down-score: -0.6
+    signal:
+      rsi-lower-bound: 30.0
+      rsi-upper-bound: 70.0
+      volume-spike-multiplier: 1.5
+      min-confidence: 0.5
+      disagreement-penalty: 0.1
+
+  ai:
+    model-name: xgboost-signal-scorer
+    model:
+      provider: xgboost-artifact
+      artifact-root: models/signal_scorer
+      version: v1
+      binary-file: model.bin
+      metadata-file: metadata.json
+      fail-on-missing-artifact: false
+    regime-model:
+      artifact-root: models/regime_classifier
+      version: v1
+      binary-file: model.bin
+      metadata-file: metadata.json
+      fail-on-missing-artifact: false
+    weights:
+      bias: -0.15
+      trend-alignment: 1.2
+      rsi: 0.7
+      volume-spike: 0.55
+      liquidity-sweep: 0.6
+      oi-change: 0.35
+      funding-rate: -0.8
+      low-volatility-penalty: -0.1
+      high-volatility-penalty: -0.25
+    thresholds:
+      trending-alignment-min: 0.45
+      ranging-alignment-max: 0.18
+      trending-range-compression-min: 0.45
+      manipulation-volume-spike-min: 2.0
+      manipulation-oi-jump-percent-min: 1.5
+      manipulation-spread-bps-min: 10.0
+      high-volatility-std-min: 0.01
+      high-volatility-atr-percent-min: 0.012
+      min-probability: 0.55
+      min-confidence: 0.25
+    adaptation:
+      trending-size-multiplier: 1.0
+      ranging-size-multiplier: 0.7
+      manipulation-size-multiplier: 0.3
+      trending-direction-threshold-multiplier: 0.95
+      ranging-direction-threshold-multiplier: 1.15
+      manipulation-direction-threshold-multiplier: 1.35
+      block-trading-in-manipulation: true
+    retraining:
+      enabled: true
+      fixed-delay-ms: 3600000
+      min-samples: 50
+      max-samples: 1000
+      auto-train-enabled: true
+      auto-version-prefix: auto
+
+  automation:
+    enabled: true
+    backtest:
+      enabled: true
+      cron: "0 0 */6 * * *"
+      input-dir: data
+      file-pattern: "Binance_*USDT_d.csv"
+      output-dir: ml/reports/auto_backtest
+      max-candles: 0
+      warmup-candles: 120
+      atr-period: 14
+      quantity: 1.0
+      stop-loss-atr-multiplier: 2.0
+      take-profit-atr-multiplier: 3.0
+    persistence:
+      enabled: true
+      cron: "0 10 */6 * * *"
+      input-dir: data
+      file-pattern: "Binance_*USDT_d.csv"
+      output-root: ml/artifacts/history
+      analysis-source-dir: ml/reports/history_backtest
+
+  risk:
+    max-spread-bps: 8.0
+    max-latency-ms: 1500
+    stale-feed-seconds: 20
+    account-equity-usd: 10000
+    risk-per-trade-percent: 1.0
+    daily-loss-cap-percent: 5.0
+    max-concurrent-trades: 3
+    atr-period: 14
+    atr-stop-multiplier: 2.0
+
+  execution:
+    provider: paper
+    market-type: FUTURES
+    live-enabled: ${EXECUTION_LIVE_ENABLED:false}
+    enabled: true
+    base-order-quantity: 1.0
+    max-partial-entries: 3
+    slippage-tolerance-bps: 6.0
+    limit-offset-bps: 1.0
+    min-slice-quantity: 0.01
+
+  orchestrator:
+    enabled: true
+    fixed-delay-ms: 30000
+    retry-attempts: 3
+    retry-backoff-ms: 300
+
+  trade-lifecycle:
+    enabled: true
+    trailing-stop-atr-multiplier: 2.0
+    take-profit-atr-multiplier: 3.0
+    close-on-signal-reversal: true
+
+  paper-portfolio:
+    initial-cash-usd: 10000
+    fee-rate: 0.001
+    max-equity-points: 500
+

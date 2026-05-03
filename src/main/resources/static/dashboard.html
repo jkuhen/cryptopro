@@ -1,0 +1,3908 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CryptoPro – Crypto Trading Platform</title>
+  <style>
+    /* ── CSS Reset & Variables ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:      #080d14;
+      --bg-sidebar:   #0d1520;
+      --bg-header:    #0d1520;
+      --bg-card:      #111d2e;
+      --bg-card2:     #162033;
+      --bg-input:     #0a1220;
+      --border:       #1e3050;
+      --border-glow:  #0f4c75;
+      --accent:       #00c896;
+      --accent-dim:   #009e77;
+      --accent2:      #3d9eff;
+      --accent3:      #ff6b6b;
+      --accent4:      #f59e0b;
+      --text-primary: #e8f0fe;
+      --text-secondary:#8bafc8;
+      --text-muted:   #4a6580;
+      --sidebar-w:    240px;
+      --header-h:     64px;
+      --footer-h:     48px;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --shadow:       0 4px 20px rgba(0,0,0,.5);
+      --transition:   .22s ease;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
+
+    /* ── Header ────────────────────────────────────────────── */
+    #app-header {
+      height: var(--header-h);
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px 0 0;
+      flex-shrink: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,.6);
+    }
+
+    .header-logo {
+      width: var(--sidebar-w);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      height: 100%;
+    }
+
+    .logo-text { display: flex; flex-direction: column; }
+    .logo-text .brand {
+      font-size: 22px; font-weight: 800; letter-spacing: 2px;
+      background: linear-gradient(135deg, #00c896 0%, #3d9eff 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .logo-text .tagline {
+      font-size: 9px; letter-spacing: 3px; color: var(--text-muted);
+      text-transform: uppercase; margin-top: 1px;
+    }
+
+    .header-center { flex: 1; display: flex; align-items: center; padding: 0 24px; gap: 8px; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-primary);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .mobile-menu-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    .status-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      background: rgba(0,200,150,.1);
+      border: 1px solid rgba(0,200,150,.25);
+      border-radius: 20px;
+      font-size: 12px; color: var(--accent); font-weight: 600;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .6; transform: scale(.85); }
+    }
+
+    .header-time { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+    /* ── Body layout ───────────────────────────────────────── */
+    #app-body { flex: 1; display: flex; overflow: hidden; }
+
+    /* ── Sidebar ───────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      flex-shrink: 0; overflow-y: auto; overflow-x: hidden;
+      transition: transform var(--transition);
+    }
+
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: var(--header-h) 0 var(--footer-h) 0;
+      background: rgba(3, 9, 16, 0.66);
+      z-index: 60;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .nav-section-label {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-muted); padding: 18px 20px 6px; font-weight: 700;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 20px; cursor: pointer;
+      color: var(--text-secondary); font-size: 13.5px; font-weight: 500;
+      border-left: 3px solid transparent;
+      transition: all var(--transition);
+      user-select: none; white-space: nowrap;
+    }
+
+    .nav-item:hover { background: rgba(61,158,255,.07); color: var(--text-primary); }
+    .nav-item.active { background: rgba(0,200,150,.08); color: var(--accent); border-left-color: var(--accent); }
+
+    .nav-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: .75; }
+    .nav-item.active .nav-icon { opacity: 1; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent3); color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 6px; border-radius: 10px;
+      min-width: 18px; text-align: center;
+      display: none;
+    }
+    .nav-badge.visible { display: block; }
+
+    .sidebar-footer {
+      margin-top: auto; padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-footer-info { font-size: 11px; color: var(--text-muted); line-height: 1.8; }
+
+    /* ── Main content ──────────────────────────────────────── */
+    #main-content {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column; min-height: 0;
+    }
+
+    .page { display: none; flex: 1; padding: 28px 32px; animation: fadeIn .25s ease; }
+    .page.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(-18px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    #accountModal > div {
+      animation: modalSlideIn .22s cubic-bezier(.25,.8,.25,1);
+    }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    #app-footer {
+      height: var(--footer-h);
+      background: var(--bg-header);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0 28px; flex-shrink: 0;
+      font-size: 11px; color: var(--text-muted);
+    }
+    .footer-left, .footer-right { display: flex; align-items: center; gap: 20px; }
+    .footer-link { color: var(--accent2); text-decoration: none; transition: opacity var(--transition); }
+    .footer-link:hover { opacity: .75; }
+    .footer-sep { color: var(--border); }
+
+    /* ── Page Headers ──────────────────────────────────────── */
+    .page-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px; gap: 16px; flex-wrap: wrap;
+    }
+    .page-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── KPI Cards ─────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0; transition: opacity var(--transition);
+    }
+    .kpi-card:hover { border-color: var(--border-glow); box-shadow: 0 0 20px rgba(0,200,150,.08); }
+    .kpi-card:hover::before { opacity: 1; }
+
+    .kpi-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; font-size: 18px; }
+    .kpi-icon.green { background: rgba(0,200,150,.15); }
+    .kpi-icon.blue  { background: rgba(61,158,255,.15); }
+    .kpi-icon.amber { background: rgba(245,158,11,.15); }
+    .kpi-icon.red   { background: rgba(255,107,107,.15); }
+
+    .kpi-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+    .kpi-value { font-size: 28px; font-weight: 800; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+    .kpi-value.positive { color: var(--accent); }
+    .kpi-value.negative { color: var(--accent3); }
+    .kpi-value.regime-trending { color: var(--accent); }
+    .kpi-value.regime-ranging { color: var(--accent2); }
+    .kpi-value.regime-high-volatility { color: var(--accent4); }
+    #marketRegimeConfidence.regime-trending { color: var(--accent); }
+    #marketRegimeConfidence.regime-ranging { color: var(--text-secondary); }
+    #marketRegimeConfidence.regime-high-volatility { color: var(--accent3); }
+
+    /* ── Cards ─────────────────────────────────────────────── */
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+    .card + .card { margin-top: 20px; }
+
+    .candles-disabled {
+      border-color: rgba(245,158,11,.45);
+      background: rgba(17,29,46,.7);
+    }
+    .candles-disabled .table-wrap { display: none; }
+    .candles-message {
+      display: none;
+      padding: 18px 14px;
+      border: 1px dashed rgba(245,158,11,.45);
+      border-radius: var(--radius-sm);
+      background: rgba(245,158,11,.08);
+      color: var(--accent4);
+      font-size: 12px;
+      text-align: center;
+    }
+    .candles-message.visible { display: block; }
+
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .card-title-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+    /* ── Grid layouts ──────────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+    .grid-2 > * { min-width: 0; }
+    @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Tables ─────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin-top: 4px; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    th {
+      padding: 10px 12px; text-align: left;
+      font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--text-muted); font-weight: 700;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(30,48,80,.6); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(61,158,255,.04); color: var(--text-primary); }
+    td.up { color: var(--accent); }
+    td.dn { color: var(--accent3); }
+    td.volume-high {
+      color: var(--accent);
+      font-weight: 700;
+      background: rgba(0,200,150,.10);
+      border-left: 2px solid rgba(0,200,150,.45);
+    }
+    td.volume-low {
+      color: var(--text-muted);
+    }
+
+    .report-panel { min-width: 0; }
+    .report-panel .table-wrap { overflow-x: auto; overflow-y: hidden; }
+    .report-table { width: max-content; min-width: 100%; }
+    .report-table-transactions { min-width: 880px; }
+    .report-table-open { min-width: 760px; }
+    .report-table-missed { min-width: 980px; }
+    .report-table-postmortem { min-width: 1120px; }
+    .report-bottom-grid { margin-top: 22px; }
+
+    .report-table-missed th,
+    .report-table-missed td { background: var(--bg-card); }
+    .report-table-missed .col-detailed {
+      position: static;
+      min-width: 320px;
+    }
+    .report-table-missed .col-reason {
+      position: static;
+      min-width: 230px;
+    }
+
+    .metrics-table th {
+      width: auto;
+    }
+
+    .metrics-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .metrics-gate-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: rgba(61,158,255,.08);
+      color: var(--text-secondary);
+    }
+    .metrics-gate-chip.ok {
+      color: var(--accent);
+      border-color: rgba(0,200,150,.35);
+      background: rgba(0,200,150,.10);
+    }
+    .metrics-gate-chip.warn {
+      color: var(--accent4);
+      border-color: rgba(245,158,11,.35);
+      background: rgba(245,158,11,.10);
+    }
+    .metrics-gate-chip.bad {
+      color: var(--accent3);
+      border-color: rgba(255,107,107,.35);
+      background: rgba(255,107,107,.10);
+    }
+
+    /* ── Form controls ─────────────────────────────────────── */
+    .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 5px; font-weight: 600; }
+
+    input[type=text], input[type=search], select, textarea {
+      height: 36px; padding: 0 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary); font-size: 13px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      min-width: 0;
+    }
+    textarea {
+      min-height: 96px;
+      height: auto;
+      padding: 10px 12px;
+      resize: vertical;
+    }
+    input[type=text]:focus, input[type=search]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0,200,150,.15);
+    }
+
+    /* ── Buttons ────────────────────────────────────────────── */
+    .btn {
+      height: 36px; padding: 0 16px;
+      border-radius: var(--radius-sm); border: 1px solid transparent;
+      cursor: pointer; font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+      white-space: nowrap; transition: all var(--transition); outline: none;
+    }
+    .btn-primary  { background: var(--accent); color: #000; border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+    .btn-secondary { background: transparent; color: var(--text-secondary); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+    .btn-copy { background: rgba(61,158,255,.1); color: var(--accent2); border-color: rgba(61,158,255,.25); }
+    .btn-copy:hover { background: rgba(61,158,255,.2); }
+
+    @media (max-width: 1199px) {
+      .page { padding: 22px 20px; }
+      .kpi-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+      #app-footer { padding: 0 16px; }
+    }
+
+    @media (max-width: 960px) {
+      html, body { overflow: auto; }
+      #app-header { padding: 0 10px 0 0; }
+      .header-logo {
+        width: auto;
+        min-width: 0;
+        border-right: none;
+        padding: 0 10px;
+        gap: 8px;
+      }
+      .logo-text .brand { font-size: 18px; letter-spacing: 1px; }
+      .logo-text .tagline { display: none; }
+      .header-center { padding: 0 10px; min-width: 0; }
+      #header-breadcrumb {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 36vw;
+      }
+      .header-actions { gap: 8px; }
+      .mobile-menu-btn { display: inline-flex; }
+      .status-pill { display: none; }
+      .header-time { font-size: 11px; }
+
+      #sidebar {
+        position: fixed;
+        top: var(--header-h);
+        left: 0;
+        bottom: var(--footer-h);
+        z-index: 70;
+        transform: translateX(-100%);
+        box-shadow: 0 10px 30px rgba(0,0,0,.5);
+      }
+      body.sidebar-open #sidebar { transform: translateX(0); }
+      body.sidebar-open #sidebar-overlay {
+        display: block;
+        opacity: 1;
+      }
+
+      #main-content { overflow-y: auto; }
+      .page { padding: 16px 12px 18px; }
+      .page-header { margin-bottom: 18px; }
+      .page-title { font-size: 20px; }
+      .page-subtitle { font-size: 12px; }
+      .card { padding: 14px 12px; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+      .kpi-card { padding: 14px; }
+      .kpi-value { font-size: 22px; }
+      .toolbar { gap: 8px; }
+      input[type=text], input[type=search], select, .btn {
+        height: 40px;
+        font-size: 14px;
+      }
+      .btn { padding: 0 12px; }
+      .log-toolbar input[type=search] { max-width: none; min-width: 0; }
+
+      .report-table-missed .col-detailed,
+      .report-table-missed .col-reason {
+        position: static;
+        box-shadow: none;
+      }
+
+      #app-footer {
+        height: auto;
+        min-height: var(--footer-h);
+        padding: 10px 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .footer-left, .footer-right {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .footer-left svg { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .header-time { display: none; }
+      #header-breadcrumb { max-width: 30vw; font-size: 12px; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; gap: 14px; }
+      th, td { padding: 9px 8px; }
+      .nav-item { padding: 13px 18px; font-size: 14px; }
+      #toast-container {
+        right: 10px;
+        left: 10px;
+        bottom: 56px;
+      }
+      .toast { max-width: none; }
+      .card-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    /* ── Log panels ─────────────────────────────────────────── */
+    .log-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .log-toolbar input[type=search] { flex: 1; min-width: 200px; max-width: 360px; }
+
+    .log-pre {
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 16px;
+      max-height: 520px; overflow: auto;
+      font-family: 'Cascadia Code', 'Fira Mono', 'Consolas', monospace;
+      font-size: 12px; line-height: 1.65;
+      color: var(--text-secondary); white-space: pre-wrap; word-break: break-all;
+    }
+
+    mark.hl { background: rgba(245,158,11,.35); color: var(--accent4); border-radius: 2px; padding: 0 2px; }
+
+    .log-line-error { color: #ff7070; }
+    .log-line-warn  { color: var(--accent4); }
+    .log-line-info  { color: var(--text-secondary); }
+    .log-line-debug { color: var(--text-muted); }
+    .log-line-audit { color: #7dd3fc; }
+
+    /* ── Doc viewer ─────────────────────────────────────────── */
+    .doc-viewer {
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 24px 28px;
+      max-height: 600px; overflow-y: auto; line-height: 1.7;
+    }
+    .doc-viewer h1 { font-size: 22px; font-weight: 800; color: var(--text-primary); margin: 0 0 18px; }
+    .doc-viewer h2 { font-size: 17px; font-weight: 700; color: var(--accent2); margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .doc-viewer h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 18px 0 8px; }
+    .doc-viewer p  { color: var(--text-secondary); font-size: 13.5px; margin: 0 0 10px; }
+    .doc-viewer ul, .doc-viewer ol { padding-left: 20px; margin: 0 0 10px; color: var(--text-secondary); font-size: 13.5px; }
+    .doc-viewer li { margin: 4px 0; }
+    .doc-viewer code { background: rgba(61,158,255,.12); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-family: 'Cascadia Code', monospace; font-size: 12px; color: var(--accent2); }
+    .doc-viewer pre { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin: 10px 0; overflow-x: auto; }
+    .doc-viewer pre code { background: none; border: none; padding: 0; font-size: 12px; color: #94b8ff; }
+    .doc-viewer a { color: var(--accent2); text-decoration: none; }
+    .doc-viewer a:hover { text-decoration: underline; }
+    .doc-viewer strong { color: var(--text-primary); }
+    .doc-viewer em { color: var(--accent4); }
+    .doc-layout { display: grid; grid-template-columns: minmax(240px, 300px) 1fr; gap: 16px; }
+    .doc-nav-panel {
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      max-height: 600px; overflow-y: auto; padding: 8px;
+    }
+    .doc-nav-tools { margin-bottom: 10px; }
+    .doc-nav-tools input[type=search] { width: 100%; }
+    .doc-nav-group { margin-bottom: 6px; }
+    .doc-nav-section-toggle {
+      width: 100%; text-align: left; background: transparent; border: 1px solid transparent;
+      color: var(--text-muted); border-radius: 8px; padding: 8px 10px; font-size: 11px;
+      letter-spacing: .5px; text-transform: uppercase; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .doc-nav-section-toggle:hover { border-color: var(--border); color: var(--text-secondary); background: rgba(61,158,255,.06); }
+    .doc-nav-chevron { transition: transform .18s ease; }
+    .doc-nav-group.collapsed .doc-nav-chevron { transform: rotate(-90deg); }
+    .doc-nav-items { padding-top: 2px; }
+    .doc-nav-group.collapsed .doc-nav-items { display: none; }
+    .doc-nav-section {
+      font-size: 11px; letter-spacing: .5px; text-transform: uppercase;
+      color: var(--text-muted); padding: 10px 10px 6px; font-weight: 700;
+    }
+    .doc-nav-item {
+      display: block; width: 100%; text-align: left; background: transparent; border: 1px solid transparent;
+      color: var(--text-secondary); border-radius: 8px; padding: 8px 10px; margin-bottom: 4px;
+      cursor: pointer; font-size: 13px;
+    }
+    .doc-nav-item:hover { background: rgba(61,158,255,.08); color: var(--text-primary); border-color: var(--border); }
+    .doc-nav-item.active { background: rgba(61,158,255,.15); color: var(--text-primary); border-color: rgba(61,158,255,.35); }
+    .hidden-by-search { display: none !important; }
+    @media (max-width: 960px) {
+      .doc-layout { grid-template-columns: 1fr; }
+      .doc-nav-panel { max-height: 280px; }
+    }
+
+    /* ── Sentiment badge ────────────────────────────────────── */
+    .sentiment-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    .sentiment-badge.bullish { background: rgba(0,200,150,.15); color: var(--accent); border: 1px solid rgba(0,200,150,.3); }
+    .sentiment-badge.bearish { background: rgba(255,107,107,.15); color: var(--accent3); border: 1px solid rgba(255,107,107,.3); }
+    .sentiment-badge.neutral { background: rgba(139,175,200,.15); color: var(--text-secondary); border: 1px solid var(--border); }
+
+    .sync-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--text-muted);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06);
+    }
+    .sync-dot.ok { background: var(--accent); box-shadow: 0 0 8px rgba(0,200,150,.45); }
+    .sync-dot.warn { background: var(--accent4); box-shadow: 0 0 8px rgba(245,158,11,.45); }
+    .sync-dot.error { background: var(--accent3); box-shadow: 0 0 8px rgba(255,107,107,.45); }
+    .sync-dot.off { background: var(--text-muted); }
+
+    .pipeline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 14px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      background: rgba(139,175,200,.12);
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pipeline-badge.ok {
+      color: var(--accent);
+      border-color: rgba(0,200,150,.35);
+      background: rgba(0,200,150,.12);
+    }
+    .pipeline-badge.warn {
+      color: var(--accent4);
+      border-color: rgba(245,158,11,.35);
+      background: rgba(245,158,11,.12);
+    }
+
+    /* ── Divider ────────────────────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── Spinner ────────────────────────────────────────────── */
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Empty state ────────────────────────────────────────── */
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); font-size: 13px; }
+    .empty-state .icon { font-size: 36px; margin-bottom: 12px; opacity: .4; display: block; }
+
+    /* ── Toast ─────────────────────────────────────────���───── */
+    #toast-container { position: fixed; bottom: 60px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast { background: var(--bg-card2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); padding: 10px 16px; font-size: 13px; color: var(--text-primary); box-shadow: var(--shadow); animation: slideUp .25s ease; max-width: 320px; }
+    .toast.error { border-left-color: var(--accent3); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header id="app-header">
+  <button id="sidebar-toggle" class="mobile-menu-btn" type="button" aria-label="Toggle navigation" aria-expanded="false" onclick="toggleSidebar()">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <div class="header-logo">
+    <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lg1" x1="0" y1="0" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#00c896"/>
+          <stop offset="100%" stop-color="#0a6ef5"/>
+        </linearGradient>
+      </defs>
+      <rect width="38" height="38" rx="9" fill="url(#lg1)"/>
+      <rect x="8"  y="22" width="4" height="8" rx="1" fill="rgba(255,255,255,.9)"/>
+      <rect x="8"  y="18" width="4" height="3" rx="0" fill="rgba(255,107,107,.9)"/>
+      <rect x="17" y="10" width="4" height="18" rx="1" fill="rgba(255,255,255,.9)"/>
+      <rect x="17" y="7"  width="4" height="3" rx="0" fill="rgba(0,220,160,.9)"/>
+      <rect x="26" y="16" width="4" height="12" rx="1" fill="rgba(255,255,255,.9)"/>
+      <rect x="26" y="12" width="4" height="4" rx="0" fill="rgba(0,220,160,.9)"/>
+      <polyline points="10,22 19,14 28,18" stroke="rgba(255,255,255,.5)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="logo-text">
+      <span class="brand">CryptoPRO</span>
+      <span class="tagline">Trading Platform</span>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <span style="font-size:13px;color:var(--text-muted);" id="header-breadcrumb">Dashboard</span>
+  </div>
+
+  <div class="header-actions">
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span>Live</span>
+    </div>
+    <span class="header-time" id="header-clock">--:--:-- UTC</span>
+    <button class="btn btn-secondary" onclick="refreshCurrentPage()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.05-3.37L10 7h5V2l-1.35.35Z" fill="currentColor"/></svg>
+      Refresh
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════ BODY ══════════════════ -->
+<div id="app-body">
+
+  <!-- ── Sidebar ── -->
+  <nav id="sidebar">
+    <div class="nav-section-label">Main</div>
+
+    <div class="nav-item active" data-page="page-dashboard" onclick="navigate(this,'page-dashboard','Dashboard')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+        <rect x="1" y="1" width="8" height="8" rx="2" fill="currentColor" opacity=".8"/>
+        <rect x="11" y="1" width="8" height="8" rx="2" fill="currentColor" opacity=".8"/>
+        <rect x="1" y="11" width="8" height="8" rx="2" fill="currentColor" opacity=".8"/>
+        <rect x="11" y="11" width="8" height="8" rx="2" fill="currentColor" opacity=".4"/>
+      </svg>
+      Dashboard
+    </div>
+
+    <div class="nav-section-label">Data</div>
+
+    <div class="nav-item" data-page="page-documentation" onclick="navigate(this,'page-documentation','Documentation')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+        <path d="M4 2h9l4 4v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M13 2v4h4" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M7 9h6M7 12h6M7 15h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Documentation
+    </div>
+
+    <div class="nav-section-label">Monitoring</div>
+
+    <div class="nav-item" data-page="page-audit" onclick="navigate(this,'page-audit','Audit Logs')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M6 7h8M6 10.5h8M6 14h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Audit Logs
+      <span class="nav-badge" id="badge-audit"></span>
+    </div>
+
+    <div class="nav-item" data-page="page-errors" onclick="navigate(this,'page-errors','Error Logs')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2L2 17h16L10 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M10 9v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="10" cy="15" r=".8" fill="currentColor"/>
+      </svg>
+      Error Logs
+      <span class="nav-badge" id="badge-errors"></span>
+    </div>
+
+    <div class="nav-item" data-page="page-model-metrics" onclick="navigate(this,'page-model-metrics','Model Metrics')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+        <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M6 12l2-2 2 1 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="13" cy="8" r="1" fill="currentColor"/>
+      </svg>
+      Model Metrics
+    </div>
+
+    <div class="nav-item" data-page="page-administration" onclick="navigate(this,'page-administration','Administration')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+        <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M6 8h8M6 11h8M6 14h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Administration
+    </div>
+
+    <div class="nav-section-label">Reports</div>
+
+    <div class="nav-item" data-page="page-reports" onclick="navigate(this,'page-reports','Transaction Reports')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+        <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M6 9h8M6 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Transaction Reports
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-info">
+        <div>CryptoPro v1.0</div>
+        <div id="sidebar-date" style="margin-top:2px;"></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Pages ── -->
+  <main id="main-content">
+
+    <!-- ═══════ PAGE: DASHBOARD ═══════ -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Trading Dashboard</div>
+          <div class="page-subtitle">Real-time overview of signals, trades, and portfolio performance</div>
+        </div>
+        <div class="toolbar" style="align-items:flex-end">
+          <div>
+            <label for="symbol">Symbol</label>
+            <select id="symbol" onchange="onDashboardSymbolChange()"></select>
+          </div>
+          <div>
+            <label for="dashboardAccount">Account</label>
+            <select id="dashboardAccount" style="min-width:140px;"><option value="">ALL</option></select>
+          </div>
+          <div>
+            <label for="dashboardRefresh">Auto Refresh</label>
+            <select id="dashboardRefresh" onchange="onDashboardRefreshChange()">
+              <option value="off" selected>Off</option>
+              <option value="1m">1m</option>
+              <option value="5m">5m</option>
+              <option value="15m">15m</option>
+              <option value="30m">30m</option>
+              <option value="1h">1h</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="loadData(true)">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.05-3.37L10 7h5V2l-1.35.35Z" fill="currentColor"/></svg>
+            Load Data
+          </button>
+          <span id="dashboardRefreshStatus" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+      </div>
+
+      <div style="margin:-6px 0 12px 2px;font-size:12px;color:var(--text-muted);" id="todayBasis">
+        Today basis: trading timezone
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon green">📈</div>
+          <div class="kpi-label">Open Signals</div>
+          <div class="kpi-value" id="openSignals">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon blue">💹</div>
+          <div class="kpi-label">Executed Trades Today</div>
+          <div class="kpi-value" id="executed">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon amber">💰</div>
+          <div class="kpi-label">PnL Today</div>
+          <div class="kpi-value" id="pnl">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon red">🌊</div>
+          <div class="kpi-label">Market Regime</div>
+          <div class="kpi-value" id="marketRegime">–</div>
+          <div style="font-size:12px;color:var(--text-muted);" id="marketRegimeConfidence">Confidence: –</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="margin-top:10px;">
+        <div class="kpi-card">
+          <div class="kpi-icon blue">📊</div>
+          <div class="kpi-label">Total Trades</div>
+          <div class="kpi-value" id="totalTrades">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon green">🟢</div>
+          <div class="kpi-label">Open Trades</div>
+          <div class="kpi-value" id="openTrades">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon amber">🔒</div>
+          <div class="kpi-label">Closed Trades</div>
+          <div class="kpi-value" id="closedTrades">–</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="margin-top:10px;">
+        <div class="kpi-card">
+          <div class="kpi-icon blue">🏦</div>
+          <div class="kpi-label">Account Balance</div>
+          <div class="kpi-value" id="mt4Balance">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon green">⚖️</div>
+          <div class="kpi-label">Account Equity</div>
+          <div class="kpi-value" id="mt4Equity">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon amber">🧾</div>
+          <div class="kpi-label">Available Margin</div>
+          <div class="kpi-value" id="mt4FreeMargin">–</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" id="candlesCard">
+          <div class="card-header">
+            <div class="card-title" id="candlesCardTitle"><span class="card-title-dot"></span><span>Latest Candles (BTCUSDT · M1)</span></div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <label for="candlesTimeframe" style="font-size:12px;color:var(--text-muted);margin:0;">TF</label>
+              <select id="candlesTimeframe" onchange="onCandlesTimeframeChange()" style="width:78px;font-size:12px;">
+                <option value="M1" selected>M1</option>
+                <option value="M5">M5</option>
+                <option value="M15">M15</option>
+                <option value="H1">H1</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead>
+              <tbody id="candles"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="candlesPanelNotice" class="candles-message" role="status">Candles require a specific symbol.</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" id="dashboardOpenSignalsTitle"><span class="card-title-dot" style="background:var(--accent2)"></span><span>Open Signals (Selected Symbol)</span></div>
+              <span id="dashboardOpenSignalCount" style="font-size:12px;color:var(--text-muted);">0 rows</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Created</th><th>Action</th><th>Confidence</th><th>Entry</th><th>SL</th><th>TP</th><th>Age (min)</th><th>Execution Hint</th></tr></thead>
+                <tbody id="dashboardOpenSignalRows"><tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">Loading open signals…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" id="dashboardMissedTradesTitle"><span class="card-title-dot" style="background:var(--accent3)"></span><span>Missed Trades (Selected Symbol)</span></div>
+              <span id="dashboardMissedTradeCount" style="font-size:12px;color:var(--text-muted);">0 rows</span>
+            </div>
+            <div class="table-wrap">
+              <table class="report-table report-table-missed">
+                <thead><tr><th>Created</th><th>Symbol</th><th>TF</th><th>Action</th><th>Confidence</th><th>Entry</th><th>Status</th><th class="col-reason">Reason</th><th class="col-detailed">Detailed Reason</th></tr></thead>
+                <tbody id="dashboardMissedTradeRows"><tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">Loading missed trades…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="card-title-dot" style="background:var(--accent4)"></span><span>Skipped/Rejected Reasons</span></div>
+              <span id="dashboardSkipRejectCount" style="font-size:12px;color:var(--text-muted);">0 reasons</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Outcome</th><th>Reason</th><th>Count</th></tr></thead>
+                <tbody id="dashboardSkipRejectReasonRows"><tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reason counts…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════ PAGE: MODEL METRICS ═══════ -->
+    <section class="page" id="page-model-metrics">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Model Metrics</div>
+          <div class="page-subtitle">Shared + dedicated model promotion, validation, and learning-cycle health</div>
+        </div>
+        <div class="toolbar">
+          <div>
+            <label for="dashboardMetricsDays">KPI Window</label>
+            <select id="dashboardMetricsDays" onchange="onDashboardMetricsDaysChange()">
+              <option value="7">7d</option>
+              <option value="14" selected>14d</option>
+              <option value="30">30d</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" id="dashboardMetricsTriggerCycleBtn" type="button" onclick="triggerDashboardLearningCycle(this)">Trigger Learning Cycle</button>
+          <button class="btn btn-secondary" id="dashboardMetricsRefreshBtn" type="button" onclick="refreshModelMetricsSection()">Refresh Metrics</button>
+          <span id="dashboardMetricsStatus" style="font-size:12px;color:var(--text-muted);">Ready</span>
+        </div>
+      </div>
+
+      <div style="font-size:12px;color:var(--text-muted);margin:0 0 8px 2px;letter-spacing:.6px;text-transform:uppercase;">Shared Model KPIs</div>
+      <div class="kpi-grid" style="margin-bottom:14px;">
+        <div class="kpi-card"><div class="kpi-label">Shared Promotion State</div><div class="kpi-value" id="metricsPromotionState">-</div></div>
+        <div class="kpi-card"><div class="kpi-label">Shared Feature Count</div><div class="kpi-value" id="metricsFeatureCount">-</div></div>
+        <div class="kpi-card"><div class="kpi-label">Shared Validation Accuracy</div><div class="kpi-value" id="metricsAccuracy">-</div></div>
+        <div class="kpi-card"><div class="kpi-label">Shared Validation Log Loss</div><div class="kpi-value" id="metricsLogLoss">-</div></div>
+        <div class="kpi-card"><div class="kpi-label" id="metricsWinRateLabel">Win Rate (14d)</div><div class="kpi-value" id="metricsWinRatePct">-</div></div>
+        <div class="kpi-card"><div class="kpi-label" id="metricsAiConfidenceRejectLabel">AI Confidence Reject % (14d)</div><div class="kpi-value" id="metricsAiConfidenceRejectPct">-</div></div>
+      </div>
+
+      <div id="metricsDedicatedKpisContainer"></div>
+
+      <div style="margin-bottom:12px;"><span id="metricsGateStatus" class="metrics-gate-chip">Loading...</span></div>
+
+      <div class="grid-2">
+        <div class="card report-panel">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Shared Model Details</div>
+          <div class="table-wrap">
+            <table class="metrics-table">
+              <tbody>
+              <tr><th>Engine</th><td id="metricsEngine">-</td></tr>
+              <tr><th>Model Ready</th><td id="metricsModelReady">-</td></tr>
+              <tr><th>Rows (Total / Train / Validation)</th><td id="metricsRowSplit">-</td></tr>
+              <tr><th>Promoted At</th><td id="metricsPromotedAt">-</td></tr>
+              <tr><th>Promoted Cycle ID</th><td id="metricsPromotedCycleId">-</td></tr>
+              <tr><th>Training Status</th><td id="metricsTrainingStatus">-</td></tr>
+              <tr><th>Model Path</th><td id="metricsModelPath">-</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card report-panel">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Dedicated Model Details (per symbol)</div>
+          <div id="metricsDedicatedModelCards"><div style="text-align:center;color:var(--text-muted);padding:24px;">Loading dedicated model details...</div></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:16px;">
+        <div class="card report-panel">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Label Distribution</div>
+          <div class="table-wrap">
+            <table class="metrics-table">
+              <thead><tr><th>Bucket</th><th>Count</th><th>Rate</th></tr></thead>
+              <tbody id="metricsLabelDistributionRows"><tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">Loading label distribution...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card report-panel">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Recent Learning Cycles</div>
+          <div class="table-wrap">
+            <table class="metrics-table">
+              <thead><tr><th>ID</th><th>Status</th><th>Training</th><th>Dedicated Train</th><th>Dedicated Promote</th><th>Started</th><th>Completed</th></tr></thead>
+              <tbody id="metricsCycleRows"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Loading learning cycles...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ PAGE: ADMINISTRATION ═══════ -->
+    <section class="page" id="page-administration">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Administration</div>
+          <div class="page-subtitle">Pipeline controls, scheduler diagnostics, and exchange risk parameters</div>
+        </div>
+        <div class="toolbar" style="align-items:flex-end">
+          <button class="btn btn-primary" onclick="loadAdministrationData()">Refresh Administration</button>
+          <button class="btn btn-secondary" onclick="triggerExchangeHistoryBackfill(this)">Backfill Exchange History</button>
+          <span id="backfillStatus" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style="color:var(--accent4)">
+              <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="7" cy="5" r="2" fill="currentColor" opacity=".8"/>
+              <circle cx="13" cy="10" r="2" fill="currentColor" opacity=".8"/>
+              <circle cx="7" cy="15" r="2" fill="currentColor" opacity=".8"/>
+            </svg>
+            Data Pipeline
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:11px;color:var(--text-muted);" id="pipelineIntradayLabel">Runs from configuration</span>
+            <span id="eventPipelineBadge" class="pipeline-badge">Event chain: awaiting first run</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="triggerMarketDataFetch(this)" style="background:rgba(0,200,150,.15);color:var(--accent);border-color:rgba(0,200,150,.3);">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 8C2 4.686 4.686 2 8 2c1.86 0 3.54.8 4.72 2.08L11 6h5V1l-1.64 1.64A7.98 7.98 0 0 0 8 0C3.582 0 0 3.582 0 8s3.582 8 8 8c3.547 0 6.564-2.306 7.596-5.5H13.4C12.46 12.618 10.388 14 8 14c-3.314 0-6-2.686-6-6Z" fill="currentColor"/></svg>
+            Fetch Yesterday's Candles
+          </button>
+          <div id="fetchStatus" style="font-size:12px;color:var(--text-muted);"></div>
+          <div style="margin-left:auto;display:flex;gap:16px;font-size:11px;color:var(--text-muted);">
+            <span id="pipelineMarketDataLabel">🕐 Market Data: loading...</span>
+            <span id="pipelineAiLabel">→ AI Signals: loading...</span>
+            <span id="pipelineExecutionLabel">→ Execution: loading...</span>
+            <span id="pipelineWindowLabel">→ Window: loading...</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
+          <div class="kpi-card" style="padding:10px 14px;min-width:160px;">
+            <div class="kpi-label">Signals NEW (24h)</div>
+            <div class="kpi-value" style="font-size:22px;" id="signalsNew24h">–</div>
+          </div>
+          <div class="kpi-card" style="padding:10px 14px;min-width:160px;">
+            <div class="kpi-label">Signals REJECTED (24h)</div>
+            <div class="kpi-value" style="font-size:22px;" id="signalsRejected24h">–</div>
+          </div>
+          <div class="kpi-card" style="padding:10px 14px;min-width:160px;">
+            <div class="kpi-label">Trades Executed (24h)</div>
+            <div class="kpi-value" style="font-size:22px;" id="signalsExecuted24h">–</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card report-panel">
+          <div class="card-header"><div class="card-title"><span class="card-title-dot" style="background:var(--accent2)"></span>Scheduler Details</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Item</th><th>Value</th></tr></thead>
+              <tbody id="adminSchedulerRows"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Loading scheduler details…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card report-panel">
+          <div class="card-header"><div class="card-title"><span class="card-title-dot" style="background:var(--accent)"></span>Configurable Items</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Item</th><th>Value</th></tr></thead>
+              <tbody id="adminConfigRows"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Loading configuration…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header"><div class="card-title"><span class="card-title-dot" style="background:var(--accent2)"></span>Immediate Execution Telemetry</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody id="adminImmediateExecutionRows"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Loading immediate execution telemetry…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent3)"></span>Broker vs DB Trade Totals</div>
+          <button class="btn btn-secondary" onclick="triggerExchangeHistoryBackfill(this)">Backfill Exchange History</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody id="adminBrokerVsDbRows"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Loading broker vs DB totals…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent4)"></span>Exchange Risk Parameters</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <label for="adminBrokerSymbol" style="font-size:12px;color:var(--text-secondary);margin:0;">Symbol:</label>
+            <select id="adminBrokerSymbol" onchange="loadBrokerRules(this.value)" style="width:120px;font-size:12px;"><option value="">Select symbol...</option></select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+            <tbody id="adminBrokerRuleRows"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Select a symbol to load exchange parameters.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent2)"></span>H1 Trend Readiness</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <label for="adminTrendHours" style="font-size:12px;color:var(--text-secondary);margin:0;">Window:</label>
+            <select id="adminTrendHours" onchange="loadTrendReadiness()" style="width:110px;font-size:12px;">
+              <option value="24">Last 24h</option>
+              <option value="48" selected>Last 48h</option>
+              <option value="72">Last 72h</option>
+              <option value="168">Last 7d</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="mobile-card-table">
+            <thead><tr><th>Symbol</th><th>H1 Candles</th><th>H1 Indicators</th><th>Coverage</th><th>EMA200 Ready (rows)</th><th>First EMA200 At</th><th>Status</th></tr></thead>
+            <tbody id="adminTrendReadinessRows"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Loading trend readiness…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ Trading Accounts Card ═══ -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent4)"></span>Trading Accounts (DB-backed)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-secondary" onclick="openAccountModal('EXECUTION')" style="border-color:rgba(0,200,150,.4);color:var(--accent);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Execution Account
+            </button>
+            <button class="btn btn-secondary" onclick="openAccountModal('PAPER')" style="border-color:rgba(245,158,11,.4);color:var(--accent4);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Paper Account
+            </button>
+            <button class="btn btn-secondary" onclick="loadTradingAccounts()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+          <strong style="color:var(--accent);">Execution</strong> accounts route live orders to a broker/exchange.&nbsp;&nbsp;
+          <strong style="color:var(--accent4);">Paper</strong> accounts simulate trades for backtesting and model training.
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Code</th>
+                <th>Display Name</th>
+                <th>Account #</th>
+                <th>Endpoint</th>
+                <th>Priority</th>
+                <th>Risk ×</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminAccountsRows">
+              <tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:24px;">Loading accounts…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <span id="accountConfigStatus" style="font-size:12px;color:var(--text-muted);display:block;margin-top:8px;"></span>
+      </div>
+
+      <!-- ═══ Account Modal ═══ -->
+      <div id="accountModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(8,13,20,.82);backdrop-filter:blur(4px);overflow-y:auto;padding:24px 12px;" onclick="handleAccountModalBackdrop(event)">
+        <div style="max-width:680px;margin:0 auto;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.8);overflow:hidden;">
+
+          <!-- Modal Header -->
+          <div style="background:linear-gradient(135deg,#0d1c34 0%,#0f2240 100%);border-bottom:1px solid var(--border);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:14px;">
+              <div id="accModalIcon" style="width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(0,200,150,.12);border:1px solid rgba(0,200,150,.3);">⚡</div>
+              <div>
+                <div id="accModalTitle" style="font-size:18px;font-weight:700;color:var(--text-primary);">New Execution Account</div>
+                <div id="accModalSubtitle" style="font-size:12px;color:var(--text-muted);margin-top:2px;">Configure live trade routing credentials and risk parameters</div>
+              </div>
+            </div>
+            <button onclick="closeAccountModal()" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent3)';this.style.color='var(--accent3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">×</button>
+          </div>
+
+          <!-- Modal Body -->
+          <div style="padding:28px;">
+            <input id="accId" type="hidden">
+
+            <!-- Section: Identity -->
+            <div style="margin-bottom:24px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                <div style="height:1px;width:18px;background:var(--border);"></div> Account Identity <div style="flex:1;height:1px;background:var(--border);"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Account Type</label>
+                  <select id="accType" style="height:44px;font-size:14px;padding:0 14px;width:100%;">
+                    <option value="EXECUTION">⚡ Execution — Live Trade Routing</option>
+                    <option value="PAPER">📄 Paper — Backtesting / Training</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Account Code <span style="color:var(--accent3);">*</span></label>
+                  <input id="accCode" style="height:44px;font-size:14px;padding:0 14px;width:100%;" placeholder="EXEC_LIVE_01">
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Display Name</label>
+                  <input id="accDisplayName" style="height:44px;font-size:14px;padding:0 14px;width:100%;" placeholder="EU Main Account">
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Account Number <span id="accNumberModeLabel" style="font-size:11px;color:var(--text-muted);">(editable for EXECUTION)</span></label>
+                  <input id="accNumber" type="number" style="height:44px;font-size:14px;padding:0 14px;width:100%;transition:all .2s ease;" placeholder="123456">
+                  <div id="accNumberHint" style="font-size:11px;color:var(--text-muted);margin-top:6px;">Execution accounts can use a broker/exchange account number.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div id="accConnectionSection" style="margin-bottom:24px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                <div style="height:1px;width:18px;background:var(--border);"></div> Connection <div style="flex:1;height:1px;background:var(--border);"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;">
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Host / URL</label>
+                  <input id="accHost" style="height:44px;font-size:14px;padding:0 14px;width:100%;" placeholder="127.0.0.1">
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Port</label>
+                  <input id="accPort" type="number" style="height:44px;font-size:14px;padding:0 14px;width:100%;" placeholder="5000">
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Timeout (ms)</label>
+                  <input id="accTimeout" type="number" style="height:44px;font-size:14px;padding:0 14px;width:100%;" value="5000">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section: Risk & Operations -->
+            <div style="margin-bottom:24px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                <div style="height:1px;width:18px;background:var(--border);"></div> Risk &amp; Operations <div style="flex:1;height:1px;background:var(--border);"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Priority Order <span style="font-size:11px;color:var(--text-muted);">(lower = higher priority)</span></label>
+                  <input id="accPriority" type="number" style="height:44px;font-size:14px;padding:0 14px;width:100%;" value="100">
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Risk Multiplier <span style="font-size:11px;color:var(--text-muted);">(1.0 = normal)</span></label>
+                  <input id="accRiskMultiplier" type="number" step="0.01" style="height:44px;font-size:14px;padding:0 14px;width:100%;" value="1.00">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section: Reporting -->
+            <div style="margin-bottom:24px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                <div style="height:1px;width:18px;background:var(--border);"></div> Reporting <span style="font-weight:400;font-size:10px;text-transform:none;letter-spacing:0;">(optional)</span> <div style="flex:1;height:1px;background:var(--border);"></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Report Emails <span style="font-size:11px;color:var(--text-muted);">(comma-separated)</span></label>
+                  <input id="accEmails" style="height:44px;font-size:14px;padding:0 14px;width:100%;" placeholder="ops@company.com, trader@company.com">
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Report Subject Template</label>
+                  <input id="accReportSubjectTemplate" style="height:44px;font-size:14px;padding:0 14px;width:100%;" placeholder="CryptoPro Daily — {{accountCode}} ({{date}})">
+                </div>
+                <div>
+                  <label style="font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">Report HTML Template <span style="font-size:11px;color:var(--text-muted);">(tokens: {{accountCode}} {{date}} {{totalPnl}} …)</span></label>
+                  <textarea id="accReportHtmlTemplate" style="height:96px;font-size:13px;padding:12px 14px;width:100%;resize:vertical;" placeholder="&lt;p&gt;Daily summary for {{accountCode}} on {{date}}&lt;/p&gt;&#10;&lt;p&gt;Executed: {{executedCount}} | Failed: {{failedCount}} | PnL: {{totalPnl}}&lt;/p&gt;"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Enabled Toggle -->
+            <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Account Active</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">When disabled, this account will be skipped during trade routing</div>
+              </div>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;">
+                <input id="accEnabled" type="checkbox" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;">
+                <span id="accEnabledLabel" style="font-size:13px;font-weight:600;color:var(--accent);">Enabled</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div style="background:rgba(13,21,32,.6);border-top:1px solid var(--border);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <span id="accountModalStatus" style="font-size:13px;color:var(--text-muted);flex:1;"></span>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-secondary" onclick="closeAccountModal()" style="height:42px;padding:0 22px;font-size:14px;">Cancel</button>
+              <button class="btn btn-primary" onclick="saveTradingAccount()" id="accSaveBtn" style="height:42px;padding:0 28px;font-size:14px;font-weight:700;min-width:130px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Save Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent3)"></span>Account Operations Visibility</div>
+          <button class="btn btn-secondary" onclick="loadAccountOperations()">Refresh Operations</button>
+        </div>
+        <div class="grid-2">
+          <div class="report-panel">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Recent Account Config Audits</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Account</th></tr></thead>
+                <tbody id="adminAccountAuditRows"><tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">Loading audits…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="report-panel">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Recent Account PnL Reconciliations</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>When</th><th>Account</th><th>Closed</th><th>Matched</th><th>Unmatched</th><th>PnL</th></tr></thead>
+                <tbody id="adminAccountReconcileRows"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reconciliations…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="adminAccountOpsMeta" style="font-size:12px;color:var(--text-muted);margin-top:10px;"></div>
+      </div>
+    </section>
+
+    <!-- ═══════ PAGE: REPORTS ═══════ -->
+    <section class="page" id="page-reports">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Transaction Reports</div>
+          <div class="page-subtitle">Live execution and PnL reporting from persisted trade transactions</div>
+        </div>
+        <div class="toolbar" style="align-items:flex-end">
+          <div>
+            <label for="reportAccount">Account</label>
+            <select id="reportAccount" style="min-width:140px;"><option value="">ALL</option></select>
+          </div>
+          <div>
+            <label for="reportSymbol">Symbol</label>
+            <select id="reportSymbol" onchange="markReportSymbolUserLocked()"></select>
+          </div>
+          <div>
+            <label for="reportDays">Period</label>
+            <select id="reportDays">
+              <option value="1" selected>1 day</option>
+              <option value="7">7 days</option>
+              <option value="30">30 days</option>
+              <option value="90">90 days</option>
+            </select>
+          </div>
+          <div>
+            <label for="reportTimeframe">Timeframe</label>
+            <select id="reportTimeframe">
+              <option value="">ALL</option>
+              <option value="M15" selected>M15</option>
+            </select>
+          </div>
+          <div>
+            <label for="reportStatus">Status</label>
+            <select id="reportStatus">
+              <option value="">ALL</option>
+              <option value="NEW">NEW</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="EXECUTED">EXECUTED</option>
+            </select>
+          </div>
+          <div style="min-width:200px;">
+            <label for="reportReason">Reason Contains</label>
+            <input type="search" id="reportReason" placeholder="e.g. price levels, risk">
+          </div>
+          <div>
+            <label for="reportStaleMinutes">Stale Threshold</label>
+            <select id="reportStaleMinutes">
+              <option value="30">30 min</option>
+              <option value="60" selected>60 min</option>
+              <option value="120">120 min</option>
+              <option value="240">240 min</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="loadTransactionReports()">Load Report</button>
+          <button class="btn btn-secondary" onclick="exportSignalReport('csv')">Export CSV</button>
+          <button class="btn btn-secondary" onclick="exportSignalReport('json')">Export JSON</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Executed Today (matches dashboard)</div><div class="kpi-value" id="reportExecutedToday">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Trades in Period</div><div class="kpi-value" id="reportTotalTrades">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Closed Trades</div><div class="kpi-value" id="reportClosedTrades">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Win Rate</div><div class="kpi-value" id="reportWinRate">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">PnL (Period)</div><div class="kpi-value" id="reportPnlPeriod">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Open Signals</div><div class="kpi-value" id="reportOpenSignals">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Missed Trades</div><div class="kpi-value" id="reportMissedTrades">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Rejected Signals</div><div class="kpi-value" id="reportRejectedSignals">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Rejected Would Win</div><div class="kpi-value" id="postMortemWouldWin">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Counter-Trend Wins</div><div class="kpi-value" id="postMortemCounterTrendWins">–</div></div>
+        <div class="kpi-card"><div class="kpi-label">Rejected Win Rate</div><div class="kpi-value" id="postMortemWinRate">–</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent3)"></span>Top Reject Reasons</div>
+          <span style="font-size:12px;color:var(--text-muted);">Last filtered period</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Reason</th><th>Count</th></tr></thead>
+            <tbody id="rejectReasonRows"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Load report to view reject reasons.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card report-panel">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent2)"></span>Recent Transactions</div>
+          <span id="reportGeneratedAt" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="report-table report-table-transactions">
+            <thead><tr><th>Time</th><th>Symbol</th><th>Action</th><th>Price</th><th>Qty</th><th>Outcome</th><th>PnL</th></tr></thead>
+            <tbody id="reportRows"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Load a transaction report to view data.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2 report-bottom-grid">
+        <div class="card report-panel">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-dot" style="background:var(--accent)"></span>Open Signals</div>
+          </div>
+          <div class="table-wrap">
+            <table class="report-table report-table-open">
+              <thead><tr><th>Created</th><th>Symbol</th><th>Action</th><th>Confidence</th><th>Entry</th><th>SL</th><th>TP</th><th>Age (min)</th><th>Execution Hint</th></tr></thead>
+              <tbody id="openSignalRows"><tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">Load report to view open signals.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card report-panel">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-dot" style="background:var(--accent3)"></span>Missed Trades</div>
+          </div>
+          <div class="table-wrap">
+            <table class="report-table report-table-missed">
+              <thead><tr><th>Created</th><th>Symbol</th><th>TF</th><th>Action</th><th>Confidence</th><th>Entry</th><th>Status</th><th class="col-reason">Reason</th><th class="col-detailed">Detailed Reason</th></tr></thead>
+              <tbody id="missedTradeRows"><tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">Load report to view missed trades.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card report-panel" style="margin-top:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent4)"></span>Rejected Signals Post-Mortem</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <label for="postMortemCounterTrendOnly" style="margin:0;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="postMortemCounterTrendOnly" onchange="applyPostMortemCounterTrendFilter()" style="accent-color:var(--accent4);">
+              Only show counter-trend rows
+            </label>
+            <span id="postMortemMeta" style="font-size:12px;color:var(--text-muted);">Load report to analyze missed opportunities.</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="report-table report-table-postmortem">
+            <thead><tr><th>Created</th><th>Symbol</th><th>TF</th><th>Action</th><th>Counter-Trend</th><th>Simulated Outcome</th><th>Candles Seen</th><th>Outcome Time</th><th>Reject Reason</th></tr></thead>
+            <tbody id="postMortemRows"><tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">Load report to view rejected post-mortem.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ PAGE: DOCUMENTATION ═══════ -->
+    <section class="page" id="page-documentation">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Documentation</div>
+          <div class="page-subtitle">Browse module references, operations notes, and deployment documentation</div>
+        </div>
+        <div class="kpi-card" style="padding:12px 20px;flex-direction:row;align-items:center;gap:12px;margin-bottom:0;min-width:0;">
+          <span style="font-size:22px;">📄</span>
+          <div><div class="kpi-label">Total Docs</div><div style="font-size:22px;font-weight:800;" id="docCount">–</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-dot" style="background:var(--accent2)"></span>Documentation Navigator</div>
+        </div>
+        <div class="doc-layout">
+          <div>
+            <div class="doc-nav-tools">
+              <label for="docSearch">Find page</label>
+              <input id="docSearch" type="search" placeholder="Search docs..." oninput="filterDocNav()">
+            </div>
+            <div class="doc-nav-panel" id="docNav">
+              <div class="empty-state"><span class="icon">📚</span>Loading documentation index…</div>
+            </div>
+          </div>
+          <div>
+            <!-- Hidden select kept for compatibility with existing deep-link/open helpers -->
+            <select id="docFile" style="display:none;"></select>
+            <div style="font-weight:600;font-size:13px;margin-bottom:12px;color:var(--accent2);" id="docTitle">Select a page from the navigation panel</div>
+            <div id="docContent" class="doc-viewer">
+              <div class="empty-state"><span class="icon">📋</span>Click any page in the left navigation panel to open it.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ PAGE: AUDIT LOGS ═══════ -->
+    <section class="page" id="page-audit">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Audit Logs</div>
+          <div class="page-subtitle">Track all trade executions, order lifecycle events, and system operations</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="log-toolbar">
+          <input type="search" id="auditQuery" placeholder="🔍  Search audit logs…" oninput="debounceAudit()">
+          <div>
+            <label for="auditLimit" style="margin-bottom:3px;">Lines</label>
+            <select id="auditLimit">
+              <option value="100">100</option>
+              <option value="200" selected>200</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="loadAuditLogs()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.05-3.37L10 7h5V2l-1.35.35Z" fill="currentColor"/></svg>
+            Refresh
+          </button>
+          <button class="btn btn-copy" onclick="copyLog('auditLogs',this)">⎘ Copy</button>
+          <span style="margin-left:auto;font-size:12px;color:var(--text-muted);" id="auditStats"></span>
+        </div>
+        <pre id="auditLogs" class="log-pre">Loading audit logs…</pre>
+      </div>
+    </section>
+
+    <!-- ═══════ PAGE: ERROR LOGS ═══════ -->
+    <section class="page" id="page-errors">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Error Logs</div>
+          <div class="page-subtitle">Review application errors, exceptions, and warnings</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="log-toolbar">
+          <input type="search" id="errorQuery" placeholder="🔍  Search error logs…" oninput="debounceError()">
+          <div>
+            <label for="errorLimit" style="margin-bottom:3px;">Lines</label>
+            <select id="errorLimit">
+              <option value="100">100</option>
+              <option value="200" selected>200</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="loadErrorLogs()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.05-3.37L10 7h5V2l-1.35.35Z" fill="currentColor"/></svg>
+            Refresh
+          </button>
+          <button class="btn btn-copy" onclick="copyLog('errorLogs',this)">⎘ Copy</button>
+          <span style="margin-left:auto;font-size:12px;color:var(--text-muted);" id="errorStats"></span>
+        </div>
+        <pre id="errorLogs" class="log-pre">Loading error logs…</pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ══════════════════ FOOTER ══════════════════ -->
+<footer id="app-footer">
+  <div class="footer-left">
+    <svg width="16" height="16" viewBox="0 0 38 38" fill="none">
+      <defs><linearGradient id="lg2" x1="0" y1="0" x2="38" y2="38"><stop offset="0%" stop-color="#00c896"/><stop offset="100%" stop-color="#0a6ef5"/></linearGradient></defs>
+      <rect width="38" height="38" rx="9" fill="url(#lg2)"/>
+      <polyline points="10,24 19,16 28,20" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <span>© 2026 CryptoPro Trading Platform. All rights reserved.</span>
+    <span class="footer-sep">|</span>
+    <a href="#" class="footer-link" onclick="navigate(document.querySelector('[data-page=page-documentation]'),'page-documentation','Documentation');return false;">Docs</a>
+  </div>
+  <div class="footer-right">
+    <span style="color:var(--accent);">● Connected</span>
+    <span class="footer-sep">|</span>
+    <span>Build 2.0.0</span>
+    <span class="footer-sep">|</span>
+    <span id="footer-time"></span>
+  </div>
+</footer>
+
+<div id="toast-container"></div>
+
+<!-- ══════════════════ SCRIPTS ══════════════════ -->
+<script>
+const MOBILE_BREAKPOINT = 960;
+
+function isMobileViewport() {
+  return window.innerWidth <= MOBILE_BREAKPOINT;
+}
+
+function closeSidebar() {
+  document.body.classList.remove('sidebar-open');
+  const toggle = document.getElementById('sidebar-toggle');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+}
+
+function openSidebar() {
+  if (!isMobileViewport()) return;
+  document.body.classList.add('sidebar-open');
+  const toggle = document.getElementById('sidebar-toggle');
+  if (toggle) toggle.setAttribute('aria-expanded', 'true');
+}
+
+function toggleSidebar() {
+  if (document.body.classList.contains('sidebar-open')) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
+}
+
+function syncResponsiveLayout() {
+  if (!isMobileViewport()) {
+    closeSidebar();
+  }
+}
+
+window.addEventListener('resize', syncResponsiveLayout);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSidebar();
+});
+
+/* ── Navigation ────────────────────────── */
+const PAGE_HASH_MAP = {
+  'page-dashboard': 'dashboard',
+  'page-documentation': 'documentation',
+  'page-audit': 'audit',
+  'page-errors': 'errors',
+  'page-model-metrics': 'model-metrics',
+  'page-administration': 'administration',
+  'page-reports': 'reports'
+};
+
+const HASH_PAGE_MAP = Object.fromEntries(
+  Object.entries(PAGE_HASH_MAP).map(([pageId, hash]) => [hash, pageId])
+);
+
+function normalizeHashRoute(rawHash) {
+  const hash = String(rawHash || '').replace(/^#/, '').trim().toLowerCase();
+  if (!hash) return '';
+  if (hash === 'page-model-metrics') return 'model-metrics';
+  return hash;
+}
+
+function updateHashForPage(pageId) {
+  const targetHash = PAGE_HASH_MAP[pageId];
+  if (!targetHash) return;
+  const currentHash = normalizeHashRoute(window.location.hash);
+  if (currentHash === targetHash) return;
+  history.replaceState(null, '', `#${targetHash}`);
+}
+
+function navigate(el, pageId, label) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(pageId).classList.add('active');
+  document.getElementById('header-breadcrumb').textContent = label;
+  updateHashForPage(pageId);
+
+  if (pageId === 'page-audit' && !el.dataset.loaded) { el.dataset.loaded='1'; loadAuditLogs(); }
+  if (pageId === 'page-errors' && !el.dataset.loaded) { el.dataset.loaded='1'; loadErrorLogs(); }
+  if (pageId === 'page-model-metrics' && !el.dataset.loaded) { el.dataset.loaded='1'; refreshModelMetricsSection(); }
+  if (pageId === 'page-reports' && !el.dataset.loaded) { el.dataset.loaded='1'; loadTransactionReports(); }
+  if (pageId === 'page-documentation' && !el.dataset.loaded) { el.dataset.loaded='1'; loadDocIndex().then(() => loadDocContent()); }
+  if (pageId === 'page-administration' && !el.dataset.loaded) { el.dataset.loaded='1'; loadAdministrationData(); }
+  closeSidebar();
+}
+
+function navigateByHash(rawHash) {
+  const normalized = normalizeHashRoute(rawHash);
+  if (!normalized) return false;
+  const pageId = HASH_PAGE_MAP[normalized];
+  if (!pageId) return false;
+  const navEl = document.querySelector(`[data-page="${pageId}"]`);
+  if (!navEl) return false;
+  const label = (navEl.textContent || '').trim().replace(/\s+/g, ' ');
+  navigate(navEl, pageId, label);
+  return true;
+}
+
+window.addEventListener('hashchange', () => {
+  navigateByHash(window.location.hash);
+});
+
+function refreshCurrentPage() {
+  const id = document.querySelector('.page.active')?.id;
+  if (id === 'page-dashboard') loadData(true);
+  else if (id === 'page-model-metrics') refreshModelMetricsSection();
+  else if (id === 'page-administration') loadAdministrationData();
+  else if (id === 'page-reports') loadTransactionReports();
+  else if (id === 'page-audit') loadAuditLogs();
+  else if (id === 'page-errors') loadErrorLogs();
+  else if (id === 'page-documentation') loadDocContent();
+}
+
+/* ── Clock ─────────────────────────────── */
+function updateClock() {
+  const now = new Date();
+  const m = now.toUTCString().match(/(\d{2}:\d{2}:\d{2})/);
+  document.getElementById('header-clock').textContent = (m ? m[1] : now.toISOString().slice(11,19)) + ' UTC';
+  const d = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  document.getElementById('footer-time').textContent = d;
+  document.getElementById('sidebar-date').textContent = d;
+}
+updateClock(); setInterval(updateClock, 1000);
+
+/* ── Toast ─────────────────────────────── */
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.textContent = msg;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+/* ── HTML helpers ───────────────────────── */
+function escapeHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function formatAmount(v) {
+  if (v === null || v === undefined || v === '') return '–';
+  const n = Number(v);
+  if (!Number.isFinite(n)) return String(v);
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatCurrency(v) {
+  return formatAmount(v); // Alias for formatAmount
+}
+
+function formatUtcToLocalHtml(iso) {
+  if (!iso) return '';
+  const raw = String(iso);
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return escapeHtml(raw);
+  return `<span title="${escapeHtml(raw)}">${escapeHtml(d.toLocaleString())}</span>`;
+}
+
+function formatUtcToLocalText(iso) {
+  if (!iso) return '';
+  const raw = String(iso);
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return escapeHtml(raw);
+  return escapeHtml(d.toLocaleString());
+}
+
+function fmtMetric(value, digits = 4) {
+  if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) return '-';
+  return Number(value).toFixed(digits);
+}
+
+function fmtMetricPct(value) {
+  if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) return '-';
+  return `${(Number(value) * 100).toFixed(2)}%`;
+}
+
+function fmtPercentValue(value) {
+  if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) return '-';
+  return `${Number(value).toFixed(2)}%`;
+}
+
+function applyRegimeKpiStyle(regimeKey, available) {
+  const regimeEl = document.getElementById('marketRegime');
+  const confidenceEl = document.getElementById('marketRegimeConfidence');
+  if (!regimeEl || !confidenceEl) return;
+
+  const classes = ['regime-trending', 'regime-ranging', 'regime-high-volatility'];
+  regimeEl.classList.remove(...classes);
+  confidenceEl.classList.remove(...classes);
+
+  if (!available) {
+    return;
+  }
+
+  const normalized = String(regimeKey || 'RANGING').toUpperCase();
+  let targetClass = 'regime-ranging';
+  if (normalized === 'TRENDING') {
+    targetClass = 'regime-trending';
+  } else if (normalized === 'HIGH_VOLATILITY' || normalized === 'HIGH_MANIPULATION') {
+    targetClass = 'regime-high-volatility';
+  }
+
+  regimeEl.classList.add(targetClass);
+  confidenceEl.classList.add(targetClass);
+}
+
+/* ── Navigation helpers ─────────────────────────────── */
+function renderMetricsGateStatus(metadata) {
+  const gateEl = document.getElementById('metricsGateStatus');
+  if (!gateEl) return;
+  const shared = metadata?.sharedModel && typeof metadata.sharedModel === 'object' ? metadata.sharedModel : metadata;
+  const metrics = shared?.learningMetrics || metadata?.learningMetrics || {};
+  const mlPassed = metrics.mlGatePassed;
+  const btPassed = metrics.backtestGatePassed;
+  let cls = 'warn';
+  let text = 'Awaiting shared-model gate data';
+  if (shared?.promotionState === 'PROMOTED' || (mlPassed === true && (btPassed === true || btPassed === undefined))) {
+    cls = 'ok';
+    text = 'Shared model promotion gates passed';
+  } else if (shared?.promotionState === 'ROLLED_BACK' || mlPassed === false || btPassed === false) {
+    cls = 'bad';
+    text = 'Shared model promotion blocked by validation gate';
+  }
+  gateEl.className = `metrics-gate-chip ${cls}`;
+  gateEl.textContent = text;
+}
+
+function renderDedicatedModelsTable(metadata) {
+  const containerEl = document.getElementById('metricsDedicatedModelCards');
+  if (!containerEl) return;
+  const configured = Array.isArray(metadata?.dedicatedModelsConfigured) ? metadata.dedicatedModelsConfigured : [];
+  const dedicated = metadata?.dedicatedModels && typeof metadata.dedicatedModels === 'object' ? metadata.dedicatedModels : {};
+  const shared = metadata?.sharedModel && typeof metadata.sharedModel === 'object' ? metadata.sharedModel : {};
+  const learningMetrics = metadata?.learningMetrics && typeof metadata.learningMetrics === 'object' ? metadata.learningMetrics : {};
+  const dedicatedTrainingStatus = learningMetrics?.dedicatedTrainingStatus && typeof learningMetrics.dedicatedTrainingStatus === 'object'
+    ? learningMetrics.dedicatedTrainingStatus
+    : {};
+
+  if (!configured.length) {
+    containerEl.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:24px;">No dedicated models configured.</div>';
+    return;
+  }
+
+  containerEl.innerHTML = configured.map((symbol, idx) => {
+    const row = dedicated[symbol] || {};
+    const engine = row.engine || shared.engine || metadata?.engine || '-';
+    const modelReadyRaw = row.modelReady ?? row.loaded ?? shared.modelReady ?? metadata?.modelReady;
+    const modelReady = modelReadyRaw == null ? '-' : (modelReadyRaw ? 'Yes' : 'No');
+    const rows = row.rowsTotal != null ? `${row.rowsTotal} / ${row.rowsTrain ?? '-'} / ${row.rowsValidation ?? '-'}` : '-';
+    const promotedAt = row.promotedTimestamp || row.promotedAt || '-';
+    const promotedCycleIdRaw = row.promotedCycleId ?? shared.promotedCycleId ?? metadata?.promotedCycleId;
+    const promotedCycleId = promotedCycleIdRaw != null ? String(promotedCycleIdRaw) : '-';
+    const trainingStatus = row.trainingStatus || dedicatedTrainingStatus[symbol] || shared.trainingStatus || metadata?.trainingStatus || '-';
+    const modelPath = row.modelPath || '-';
+    const spacing = idx > 0 ? 'margin-top:12px;' : '';
+
+    return `
+    <div class="table-wrap" style="${spacing}">
+      <table class="metrics-table">
+        <tbody>
+          <tr><th>Symbol</th><td>${escapeHtml(symbol)}</td></tr>
+          <tr><th>Engine</th><td>${escapeHtml(engine)}</td></tr>
+          <tr><th>Model Ready</th><td>${escapeHtml(modelReady)}</td></tr>
+          <tr><th>Rows (Total / Train / Validation)</th><td>${escapeHtml(rows)}</td></tr>
+          <tr><th>Promoted At</th><td>${escapeHtml(promotedAt)}</td></tr>
+          <tr><th>Promoted Cycle ID</th><td>${escapeHtml(promotedCycleId)}</td></tr>
+          <tr><th>Training Status</th><td>${escapeHtml(trainingStatus)}</td></tr>
+          <tr><th>Model Path</th><td>${escapeHtml(modelPath)}</td></tr>
+        </tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function renderDedicatedModelKpis(metadata, operationalBySymbol = {}, days = 14) {
+  const containerEl = document.getElementById('metricsDedicatedKpisContainer');
+  if (!containerEl) return;
+
+  const configured = Array.isArray(metadata?.dedicatedModelsConfigured) ? metadata.dedicatedModelsConfigured : {};
+  const dedicated = metadata?.dedicatedModels && typeof metadata.dedicatedModels === 'object' ? metadata.dedicatedModels : {};
+
+  if (!configured.length) {
+    containerEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);margin:12px 0 8px 2px;letter-spacing:.6px;text-transform:uppercase;">Dedicated Model KPIs</div><div style="color:var(--text-muted);padding:24px;text-align:center;">No dedicated models configured.</div>';
+    return;
+  }
+
+  let html = '<div style="font-size:12px;color:var(--text-muted);margin:0 0 8px 2px;letter-spacing:.6px;text-transform:uppercase;">Dedicated Model KPIs</div>';
+
+  configured.forEach((symbol) => {
+    const model = dedicated[symbol] || {};
+    const operational = operationalBySymbol[symbol] || {};
+    const promotionState = model.promotedModelAvailable === true ? 'PROMOTED' : 'NOT_PROMOTED';
+    const featureCount = model.featureCount ?? '-';
+    const accuracy = fmtMetricPct(model.validationAccuracy);
+    const logLoss = fmtMetric(model.validationLogLoss);
+    const winRate = fmtPercentValue(operational.winRate);
+    const aiRejectPct = fmtPercentValue(operational.aiConfidenceRejectPct);
+    const aiRejectCount = operational.aiConfidenceRejectCount;
+    const rejectedTotal = operational.rejectedSignalCount;
+    const aiRejectDisplay = aiRejectPct !== '-' && rejectedTotal != null && !Number.isNaN(Number(rejectedTotal))
+      ? `${aiRejectPct} (${aiRejectCount ?? 0}/${rejectedTotal})`
+      : aiRejectPct;
+
+    html += `
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--text-muted);margin:0 0 8px 2px;letter-spacing:.6px;text-transform:uppercase;">${escapeHtml(symbol)}</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Promotion State</div><div class="kpi-value">${escapeHtml(promotionState)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Feature Count</div><div class="kpi-value">${escapeHtml(String(featureCount))}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Validation Accuracy</div><div class="kpi-value">${escapeHtml(accuracy)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Validation Log Loss</div><div class="kpi-value">${escapeHtml(logLoss)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Win Rate (${days}d)</div><div class="kpi-value">${escapeHtml(winRate)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">AI Confidence Reject % (${days}d)</div><div class="kpi-value">${escapeHtml(aiRejectDisplay)}</div></div>
+      </div>
+    </div>`;
+  });
+
+  containerEl.innerHTML = html;
+}
+
+function renderDashboardLabelDistribution(report) {
+  const rowsEl = document.getElementById('metricsLabelDistributionRows');
+  if (!rowsEl) return;
+  const counts = report?.counts || {};
+  const rates = report?.rates || {};
+  const rows = [
+    { bucket: 'BUY', count: counts.BUY, rate: rates.buyRate },
+    { bucket: 'HOLD', count: counts.HOLD, rate: rates.holdRate },
+    { bucket: 'SELL', count: counts.SELL, rate: rates.sellRate },
+    { bucket: 'UNLABELED', count: counts.UNLABELED, rate: null },
+    { bucket: 'DIRECTIONAL', count: Number(counts.BUY || 0) + Number(counts.SELL || 0), rate: rates.directionalRate }
+  ];
+  rowsEl.innerHTML = rows.map((r) => `<tr>
+    <td>${escapeHtml(r.bucket)}</td>
+    <td>${escapeHtml(String(r.count ?? '-'))}</td>
+    <td>${r.rate == null ? '-' : escapeHtml(fmtMetricPct(r.rate))}</td>
+  </tr>`).join('');
+}
+
+function renderDashboardLearningCycles(cycles) {
+  const rowsEl = document.getElementById('metricsCycleRows');
+  if (!rowsEl) return;
+  const list = Array.isArray(cycles) ? cycles : [];
+  if (!list.length) {
+    rowsEl.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">No learning cycles found.</td></tr>';
+    return;
+  }
+
+  const summarizePerSymbol = (raw) => {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return '-';
+    const entries = Object.entries(raw);
+    if (!entries.length) return '-';
+    return entries.map(([symbol, status]) => `${symbol}:${status}`).join(' | ');
+  };
+
+  rowsEl.innerHTML = list.map((cycle) => `<tr>
+    <td>${escapeHtml(String(cycle.id ?? ''))}</td>
+    <td>${escapeHtml(String(cycle.status ?? ''))}</td>
+    <td>${escapeHtml(String(cycle.trainingStatus ?? ''))}</td>
+    <td>${escapeHtml(summarizePerSymbol(cycle?.metrics?.dedicatedTrainingStatus))}</td>
+    <td>${escapeHtml(summarizePerSymbol(cycle?.metrics?.dedicatedPromotionStatus))}</td>
+    <td>${formatUtcToLocalText(cycle.startedAt)}</td>
+    <td>${formatUtcToLocalText(cycle.completedAt)}</td>
+  </tr>`).join('');
+}
+
+function renderDashboardMetricsMetadata(metadata, operationalBySymbol = {}, days = 14) {
+  const shared = metadata?.sharedModel && typeof metadata.sharedModel === 'object' ? metadata.sharedModel : metadata;
+  const dedicated = metadata?.dedicatedModels && typeof metadata.dedicatedModels === 'object' ? metadata.dedicatedModels : {};
+  const configured = Array.isArray(metadata?.dedicatedModelsConfigured) ? metadata.dedicatedModelsConfigured : {};
+  const dedicatedRows = Object.values(dedicated);
+  const promotedCount = dedicatedRows.filter(r => r && r.promotedModelAvailable === true).length;
+  const loadedCount = dedicatedRows.filter(r => r && r.loaded === true).length;
+
+  document.getElementById('metricsPromotionState').textContent = shared?.promotionState || metadata?.promotionState || 'NOT_PROMOTED';
+  document.getElementById('metricsFeatureCount').textContent = shared?.featureCount ?? metadata?.featureCount ?? '-';
+  document.getElementById('metricsAccuracy').textContent = fmtMetricPct(shared?.validationAccuracy ?? metadata?.validationAccuracy);
+  document.getElementById('metricsLogLoss').textContent = fmtMetric(shared?.validationLogLoss ?? metadata?.validationLogLoss);
+
+  // Render KPI cards for each dedicated model
+  renderDedicatedModelKpis(metadata, operationalBySymbol, days);
+
+  document.getElementById('metricsEngine').textContent = shared?.engine || metadata?.engine || '-';
+  document.getElementById('metricsModelReady').textContent = (shared?.modelReady ?? metadata?.modelReady) ? 'Yes' : 'No';
+  document.getElementById('metricsRowSplit').textContent = `${shared?.rowsTotal ?? metadata?.rowsTotal ?? '-'} / ${shared?.rowsTrain ?? metadata?.rowsTrain ?? '-'} / ${shared?.rowsValidation ?? metadata?.rowsValidation ?? '-'}`;
+  document.getElementById('metricsPromotedAt').textContent = shared?.promotedTimestamp || metadata?.promotedTimestamp || shared?.promotedAt || metadata?.promotedAt || '-';
+  document.getElementById('metricsPromotedCycleId').textContent = shared?.promotedCycleId ?? metadata?.promotedCycleId ?? '-';
+  document.getElementById('metricsTrainingStatus').textContent = shared?.trainingStatus || metadata?.trainingStatus || '-';
+  document.getElementById('metricsModelPath').textContent = shared?.modelPath || metadata?.modelPath || '-';
+  renderMetricsGateStatus(metadata);
+  renderDedicatedModelsTable(metadata);
+}
+
+async function loadDedicatedOperationalKpis(symbols, days) {
+  const list = Array.isArray(symbols) ? symbols.filter(Boolean) : [];
+  if (!list.length) {
+    return {};
+  }
+
+  const entries = await Promise.all(list.map(async (symbol) => {
+    try {
+      const query = `symbol=${encodeURIComponent(symbol)}&days=${encodeURIComponent(days)}&limit=500`;
+      const [transactionReport, signalReport] = await Promise.all([
+        fetch(`/api/v2/dashboard/reports/transactions?${query}`, { cache: 'no-store' }).then(r => r.json()),
+        fetch(`/api/v2/dashboard/reports/signals?${query}&staleMinutes=60`, { cache: 'no-store' }).then(r => r.json())
+      ]);
+      return [symbol, {
+        winRate: transactionReport?.winRate,
+        aiConfidenceRejectPct: signalReport?.aiConfidenceRejectPct,
+        aiConfidenceRejectCount: signalReport?.aiConfidenceRejectCount,
+        rejectedSignalCount: signalReport?.rejectedSignalCount
+      }];
+    } catch (e) {
+      console.warn(`loadDedicatedOperationalKpis(${symbol})`, e);
+      return [symbol, {}];
+    }
+  }));
+
+  return Object.fromEntries(entries);
+}
+
+function setDashboardMetricsStatus(message) {
+  const statusEl = document.getElementById('dashboardMetricsStatus');
+  if (statusEl) {
+    statusEl.textContent = message || '';
+  }
+}
+
+const DASHBOARD_METRICS_DAYS_STORAGE_KEY = 'cryptoproDashboardMetricsDays';
+const LEGACY_DASHBOARD_METRICS_DAYS_STORAGE_KEY = 'fxproDashboardMetricsDays';
+
+function getDashboardMetricsDays() {
+  const value = Number(document.getElementById('dashboardMetricsDays')?.value ?? 14);
+  return [7, 14, 30].includes(value) ? value : 14;
+}
+
+function persistDashboardMetricsDays(days) {
+  try {
+    localStorage.setItem(DASHBOARD_METRICS_DAYS_STORAGE_KEY, String(days));
+  } catch (_) {
+    // Ignore storage errors (private mode/quota).
+  }
+}
+
+function restoreDashboardMetricsDays() {
+  const selectEl = document.getElementById('dashboardMetricsDays');
+  if (!selectEl) return 14;
+  let restored = 14;
+  try {
+    const raw = localStorage.getItem(DASHBOARD_METRICS_DAYS_STORAGE_KEY)
+      ?? localStorage.getItem(LEGACY_DASHBOARD_METRICS_DAYS_STORAGE_KEY);
+    const parsed = Number(raw);
+    if ([7, 14, 30].includes(parsed)) {
+      restored = parsed;
+    }
+  } catch (_) {
+    // Fall back to default when storage is unavailable.
+  }
+  selectEl.value = String(restored);
+  return restored;
+}
+
+function onDashboardMetricsDaysChange() {
+  const days = getDashboardMetricsDays();
+  persistDashboardMetricsDays(days);
+  refreshModelMetricsSection();
+}
+
+function updateDashboardOperationalKpiLabels(days) {
+  const winLabelEl = document.getElementById('metricsWinRateLabel');
+  if (winLabelEl) {
+    winLabelEl.textContent = `Win Rate (${days}d)`;
+  }
+  const aiRejectLabelEl = document.getElementById('metricsAiConfidenceRejectLabel');
+  if (aiRejectLabelEl) {
+    aiRejectLabelEl.textContent = `AI Confidence Reject % (${days}d)`;
+  }
+}
+
+function renderDashboardOperationalKpis(transactionReport, signalReport, days) {
+  updateDashboardOperationalKpiLabels(days);
+  const winRate = transactionReport?.winRate;
+  const aiRejectPct = signalReport?.aiConfidenceRejectPct;
+  const aiRejectCount = signalReport?.aiConfidenceRejectCount;
+  const rejectedTotal = signalReport?.rejectedSignalCount;
+
+  const winRateEl = document.getElementById('metricsWinRatePct');
+  if (winRateEl) {
+    winRateEl.textContent = fmtPercentValue(winRate);
+  }
+
+  const aiRejectEl = document.getElementById('metricsAiConfidenceRejectPct');
+  if (aiRejectEl) {
+    const pctText = fmtPercentValue(aiRejectPct);
+    if (pctText !== '-' && rejectedTotal != null && !Number.isNaN(Number(rejectedTotal))) {
+      aiRejectEl.textContent = `${pctText} (${aiRejectCount ?? 0}/${rejectedTotal})`;
+    } else {
+      aiRejectEl.textContent = pctText;
+    }
+  }
+}
+
+async function refreshModelMetricsSection() {
+  const days = getDashboardMetricsDays();
+  updateDashboardOperationalKpiLabels(days);
+  setDashboardMetricsStatus(`Refreshing model metrics (${days}d)...`);
+  try {
+    const [metadataRes, cyclesRes, labelsRes, signalReport, transactionReport] = await Promise.all([
+      fetch('/api/ai/model/metadata', { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/ai/learning/cycles?limit=5', { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/ai/reports/label-distribution', { cache: 'no-store' }).then(r => r.json()),
+      fetch(`/api/v2/dashboard/reports/signals?symbol=ALL&days=${encodeURIComponent(days)}&limit=500&staleMinutes=60`, { cache: 'no-store' }).then(r => r.json()),
+      fetch(`/api/v2/dashboard/reports/transactions?symbol=ALL&days=${encodeURIComponent(days)}&limit=500`, { cache: 'no-store' }).then(r => r.json())
+    ]);
+
+    if (metadataRes.status !== 'success') throw new Error(metadataRes.message || 'Failed to load model metadata');
+    if (cyclesRes.status !== 'success') throw new Error(cyclesRes.message || 'Failed to load learning cycles');
+    if (labelsRes.status !== 'success') throw new Error(labelsRes.message || 'Failed to load label distribution');
+
+    const metadata = metadataRes.metadata || {};
+    const configuredSymbols = Array.isArray(metadata?.dedicatedModelsConfigured) ? metadata.dedicatedModelsConfigured : [];
+    const operationalBySymbol = await loadDedicatedOperationalKpis(configuredSymbols, days);
+
+    renderDashboardMetricsMetadata(metadata, operationalBySymbol, days);
+    renderDashboardLearningCycles(cyclesRes.cycles || []);
+    renderDashboardLabelDistribution(labelsRes.report || {});
+    renderDashboardOperationalKpis(transactionReport || {}, signalReport || {}, days);
+    setDashboardMetricsStatus('Updated');
+  } catch (e) {
+    console.error('refreshModelMetricsSection', e);
+    setDashboardMetricsStatus('Refresh failed');
+    showToast('Failed to load model metrics', 'error');
+  }
+}
+
+async function triggerDashboardLearningCycle(btn) {
+  const originalText = btn?.textContent;
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Triggering...';
+  }
+  setDashboardMetricsStatus('Triggering learning cycle...');
+  try {
+    const payload = await fetch('/api/ai/learning/trigger?source=MANUAL', { cache: 'no-store' }).then(r => r.json());
+    if (payload.status !== 'success') {
+      throw new Error(payload.message || 'Failed to trigger learning cycle');
+    }
+    const cycleId = payload.cycle?.id != null ? payload.cycle.id : 'n/a';
+    setDashboardMetricsStatus(`Triggered cycle ${cycleId}`);
+    await refreshModelMetricsSection();
+  } catch (e) {
+    console.error('triggerDashboardLearningCycle', e);
+    setDashboardMetricsStatus('Trigger failed');
+    showToast('Learning cycle trigger failed', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = originalText || 'Trigger Learning Cycle';
+    }
+  }
+}
+
+function applyTableDataLabels(tableId) {
+  // Apply data labels and formatting to table rows if needed
+  const tbody = document.getElementById(tableId);
+  if (!tbody) return;
+  // This is called after table content is updated to allow for any post-processing
+  // Currently, all formatting is done inline during HTML generation, so this is a placeholder
+}
+
+function markdownToHtml(src) {
+  const lines = String(src ?? '').split(/\r?\n/);
+  const out = []; let inCode = false, inList = false;
+  const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+  for (const rawLine of lines) {
+    const line = rawLine ?? '', trimmed = line.trim();
+    if (trimmed.startsWith('```')) { closeList(); if (!inCode) { inCode=true; out.push('<pre><code>'); } else { inCode=false; out.push('</code></pre>'); } continue; }
+    if (inCode) { out.push(`${escapeHtml(line)}\n`); continue; }
+    if (/^###\s+/.test(trimmed)) { closeList(); out.push(`<h3>${escapeHtml(trimmed.replace(/^###\s+/,''))}</h3>`); continue; }
+    if (/^##\s+/.test(trimmed))  { closeList(); out.push(`<h2>${escapeHtml(trimmed.replace(/^##\s+/,''))}</h2>`);  continue; }
+    if (/^#\s+/.test(trimmed))   { closeList(); out.push(`<h1>${escapeHtml(trimmed.replace(/^#\s+/,''))}</h1>`);   continue; }
+    if (/^[-*]\s+/.test(trimmed)) { if (!inList) { out.push('<ul>'); inList=true; } out.push(`<li>${escapeHtml(trimmed.replace(/^[-*]\s+/,''))}</li>`); continue; }
+    if (!trimmed) { closeList(); continue; }
+    closeList();
+    let p = escapeHtml(trimmed)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    out.push(`<p>${p}</p>`);
+  }
+  closeList(); return out.join('\n') || '<p>No content.</p>';
+}
+
+function colorizeLogLine(line) {
+  const e = escapeHtml(line);
+  if (/ERROR|EXCEPTION|FATAL/i.test(line)) return `<span class="log-line-error">${e}</span>`;
+  if (/WARN/i.test(line))  return `<span class="log-line-warn">${e}</span>`;
+  if (/AUDIT_/i.test(line)) return `<span class="log-line-audit">${e}</span>`;
+  if (/DEBUG/i.test(line)) return `<span class="log-line-debug">${e}</span>`;
+  return `<span class="log-line-info">${e}</span>`;
+}
+
+function highlightedHtml(lines, query) {
+  if (!Array.isArray(lines) || lines.length === 0) return '<span class="log-line-debug">No entries found.</span>';
+  const colored = lines.map(colorizeLogLine).join('\n');
+  if (!query?.trim()) return colored;
+  const safe = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return colored.replace(new RegExp(safe,'gi'), m => `<mark class="hl">${m}</mark>`);
+}
+
+async function copyLog(preId, btn) {
+  const text = document.getElementById(preId)?.innerText || '';
+  try {
+    await navigator.clipboard.writeText(text);
+    const orig = btn.textContent; btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+    showToast('Copied to clipboard');
+  } catch { showToast('Copy failed', 'error'); }
+}
+
+let auditTimer, errorTimer;
+let dashboardRefreshTimer;
+let newsCountdownTimer;
+let lastNewsFetchAtMs = null;
+let newsFetchState = 'off';
+let reportSymbolUserLocked = false;
+let lastPostMortemRows = [];
+let dashboardOverviewUnavailableNotified = false;
+function debounceAudit() { clearTimeout(auditTimer); auditTimer = setTimeout(loadAuditLogs, 450); }
+function debounceError()  { clearTimeout(errorTimer); errorTimer  = setTimeout(loadErrorLogs, 450); }
+
+function renderPostMortemRows(rows) {
+  const postMortemRowsEl = document.getElementById('postMortemRows');
+  if (!postMortemRowsEl) return;
+  const showCounterTrendOnly = document.getElementById('postMortemCounterTrendOnly')?.checked === true;
+  const filteredRows = showCounterTrendOnly
+    ? (Array.isArray(rows) ? rows.filter(r => r && r.counterTrend) : [])
+    : (Array.isArray(rows) ? rows : []);
+
+  if (!filteredRows.length) {
+    const msg = showCounterTrendOnly
+      ? 'No counter-trend rejected rows for selected filters.'
+      : 'No rejected signals to analyze for selected filters.';
+    postMortemRowsEl.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">${msg}</td></tr>`;
+    return;
+  }
+
+  postMortemRowsEl.innerHTML = filteredRows.map(r => {
+    const outcomeRaw = String(r.simulatedOutcome || 'UNRESOLVED').toUpperCase();
+    const outcomeLabel = outcomeRaw === 'WOULD_WIN'
+      ? 'Would Win'
+      : outcomeRaw === 'WOULD_LOSE'
+        ? 'Would Lose'
+        : outcomeRaw === 'AMBIGUOUS'
+          ? 'Ambiguous'
+          : 'Unresolved';
+    const outcomeClass = outcomeRaw === 'WOULD_WIN' ? 'up' : outcomeRaw === 'WOULD_LOSE' ? 'dn' : '';
+    return `<tr>
+      <td>${formatUtcToLocalText(r.createdAt)}</td>
+      <td>${escapeHtml(r.symbol || '')}</td>
+      <td>${escapeHtml(r.timeframeCode || '')}</td>
+      <td>${escapeHtml(r.action || '')}</td>
+      <td>${r.counterTrend ? 'Yes' : 'No'}</td>
+      <td class="${outcomeClass}">${escapeHtml(outcomeLabel)}</td>
+      <td>${escapeHtml(String(r.candlesObserved ?? ''))}</td>
+      <td>${formatUtcToLocalText(r.outcomeTimestamp)}</td>
+      <td>${escapeHtml(r.rejectionReason || '')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function applyPostMortemCounterTrendFilter() {
+  const checked = document.getElementById('postMortemCounterTrendOnly')?.checked === true;
+    localStorage.setItem('cryptoproPostMortemCounterTrendOnly', checked ? '1' : '0');
+  renderPostMortemRows(lastPostMortemRows);
+}
+
+function configureDashboardAutoRefresh(value, triggerLoad = true) {
+  clearInterval(dashboardRefreshTimer);
+  dashboardRefreshTimer = null;
+  const intervals = { '1m': 60000, '5m': 300000, '15m': 900000, '30m': 1800000, '1h': 3600000 };
+  const ms = intervals[value];
+  const statusEl = document.getElementById('dashboardRefreshStatus');
+  if (!ms) {
+    if (statusEl) statusEl.textContent = '';
+    return;
+  }
+  if (triggerLoad) loadData(false);
+  dashboardRefreshTimer = setInterval(() => loadData(false), ms);
+  if (statusEl) statusEl.textContent = `Auto-refreshing every ${value}`;
+}
+
+function onDashboardRefreshChange() {
+  const sel = document.getElementById('dashboardRefresh');
+  const value = sel?.value || 'off';
+    localStorage.setItem('cryptoproDashboardRefresh', value);
+  configureDashboardAutoRefresh(value, false);
+}
+
+function updateNewsRefreshMeta(msg, state) {
+  console.debug('[NewsSync]', state, msg);
+}
+
+function updateNewsRefreshCountdown() {
+  // placeholder – no dedicated countdown element in this build
+}
+
+function initDashboardAutoRefresh() {
+    const saved = localStorage.getItem('cryptoproDashboardRefresh') || localStorage.getItem('fxproDashboardRefresh') || 'off';
+  const sel = document.getElementById('dashboardRefresh');
+  if (sel) {
+    const allowed = ['off', '1m', '5m', '15m', '30m', '1h'];
+    sel.value = allowed.includes(saved) ? saved : 'off';
+  }
+  configureDashboardAutoRefresh(sel?.value || 'off', false);
+}
+
+/* ── API ───────────────────────────────── */
+async function loadPairs() {
+  try {
+    const r = await fetch('/api/v2/dashboard/pairs').then(r => r.json());
+    const pairs = Array.isArray(r.pairs) ? r.pairs : [];
+    const values = pairs.length ? pairs : ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
+    const buildOptions = (sel, includeAll, allValue = '') => {
+      if (!sel) return;
+      sel.innerHTML = '';
+      if (includeAll) {
+        const all = document.createElement('option');
+        all.value = allValue;
+        all.textContent = 'ALL';
+        sel.appendChild(all);
+      }
+      values.forEach(p => {
+        const o = document.createElement('option');
+        o.value = o.textContent = p;
+        sel.appendChild(o);
+      });
+    };
+    buildOptions(document.getElementById('symbol'), true, 'ALL');
+    buildOptions(document.getElementById('reportSymbol'), true, 'ALL');
+    buildOptions(document.getElementById('adminBrokerSymbol'), false);
+    const dashboardSymbol = document.getElementById('symbol');
+    if (dashboardSymbol && dashboardSymbol.options.length > 1) {
+      dashboardSymbol.selectedIndex = 1;
+    }
+    syncReportSymbolFromDashboard(true);
+  } catch(e) { console.error('loadPairs', e); }
+}
+
+async function loadAccountsForDashboard() {
+  const sel = document.getElementById('dashboardAccount');
+  const reportSel = document.getElementById('reportAccount');
+  // Some layouts do not render an account selector; keep this call safe.
+  if (!sel && !reportSel) return;
+
+    const currentValue = (sel?.value || '') || localStorage.getItem('cryptoproDashboardAccount') || localStorage.getItem('fxproDashboardAccount') || '';
+    const currentReportValue = reportSel?.value || localStorage.getItem('cryptoproReportAccount') || localStorage.getItem('fxproReportAccount') || '';
+  try {
+    const response = await fetch('/api/v2/accounts');
+    if (!response.ok) {
+      throw new Error(`Failed to load accounts (${response.status})`);
+    }
+
+    const payload = await response.json();
+    const rows = Array.isArray(payload.items) ? payload.items : [];
+
+    const buildOptions = (target, savedValue) => {
+      if (!target) return;
+      target.innerHTML = '';
+      const allowedType = target.id === 'reportAccount' ? 'PAPER' : 'EXECUTION';
+      const all = document.createElement('option');
+      all.value = '';
+      all.textContent = 'ALL';
+      target.appendChild(all);
+      rows
+        .filter(item => item && item.enabled !== false)
+        .filter(item => normalizeAccountType(item.accountType) === allowedType)
+        .forEach(item => {
+          const option = document.createElement('option');
+          const code = String(item.accountCode ?? '').trim();
+          const number = String(item.accountNumber ?? '').trim();
+          option.value = code || String(item.id ?? '');
+          option.textContent = code && number ? `${code} (#${number})` : (code || number || option.value);
+          const exists = Array.from(target.options).some(o => o.value === option.value && o.textContent === option.textContent);
+          if (!exists) {
+            target.appendChild(option);
+          }
+        });
+      const hasSavedValue = Array.from(target.options).some(o => o.value === savedValue);
+      target.value = hasSavedValue ? savedValue : '';
+    };
+
+    buildOptions(sel, currentValue);
+    buildOptions(reportSel, currentReportValue);
+
+    if (sel) localStorage.setItem('cryptoproDashboardAccount', sel.value || '');
+    if (reportSel) localStorage.setItem('cryptoproReportAccount', reportSel.value || '');
+  } catch (e) {
+    console.error('loadAccountsForDashboard', e);
+    if (sel) { sel.innerHTML = '<option value="">ALL</option>'; sel.value = ''; }
+    if (reportSel) { reportSel.innerHTML = '<option value="">ALL</option>'; reportSel.value = ''; }
+    localStorage.setItem('cryptoproDashboardAccount', '');
+    localStorage.setItem('cryptoproReportAccount', '');
+  }
+
+  if (sel && !sel.dataset.boundChange) {
+    sel.addEventListener('change', () => {
+      localStorage.setItem('cryptoproDashboardAccount', sel.value || '');
+      loadData(false);
+    });
+    sel.dataset.boundChange = '1';
+  }
+
+  if (reportSel && !reportSel.dataset.boundChange) {
+    reportSel.addEventListener('change', () => {
+      localStorage.setItem('cryptoproReportAccount', reportSel.value || '');
+      loadTransactionReports();
+    });
+    reportSel.dataset.boundChange = '1';
+  }
+}
+
+function markReportSymbolUserLocked() {
+  reportSymbolUserLocked = true;
+}
+
+function syncReportSymbolFromDashboard(force = false) {
+  const dashboardSymbol = document.getElementById('symbol');
+  const reportSymbol = document.getElementById('reportSymbol');
+  if (!dashboardSymbol || !reportSymbol) return;
+  if (force || !reportSymbolUserLocked) {
+    reportSymbol.value = dashboardSymbol.value || 'ALL';
+  }
+}
+
+function onDashboardSymbolChange() {
+  syncReportSymbolFromDashboard(true);
+  loadData(true);
+}
+
+async function loadDocIndex() {
+  try {
+    const r = await fetch('/api/v2/dashboard/docs/index').then(r => r.json());
+    const sel = document.getElementById('docFile'); sel.innerHTML = '';
+    const nav = document.getElementById('docNav'); nav.innerHTML = '';
+    const searchEl = document.getElementById('docSearch');
+    const searchQuery = (searchEl?.value || '').trim().toLowerCase();
+    const allFiles = [];
+    let firstFile = '';
+    (Array.isArray(r.sections) ? r.sections : []).forEach((s, idx) => {
+      const sectionName = s.name || 'GENERAL';
+      const sectionKey = `doc-section-${idx}-${String(sectionName).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+      const group = document.createElement('div');
+      group.className = 'doc-nav-group';
+      group.dataset.sectionKey = sectionKey;
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'doc-nav-section-toggle';
+      toggle.innerHTML = `<span>${escapeHtml(sectionName)}</span><span class="doc-nav-chevron">▾</span>`;
+      toggle.onclick = () => toggleDocNavSection(sectionKey);
+
+      const itemsWrap = document.createElement('div');
+      itemsWrap.className = 'doc-nav-items';
+
+      const g = document.createElement('optgroup'); g.label = sectionName;
+      (Array.isArray(s.files) ? s.files : []).forEach(f => {
+        allFiles.push(f);
+        if (!firstFile) firstFile = f.file;
+
+        const o = document.createElement('option');
+        o.value = f.file;
+        o.textContent = `${f.title} (${f.file})`;
+        g.appendChild(o);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'doc-nav-item';
+        btn.dataset.file = f.file;
+        btn.dataset.search = `${f.title || ''} ${f.file || ''}`.toLowerCase();
+        btn.textContent = f.title || f.file;
+        btn.onclick = () => loadDocContentByFile(f.file);
+        itemsWrap.appendChild(btn);
+      });
+
+      group.appendChild(toggle);
+      group.appendChild(itemsWrap);
+      nav.appendChild(group);
+
+      if (g.children.length) sel.appendChild(g);
+
+      if (docNavSectionState[sectionKey]) {
+        group.classList.add('collapsed');
+      }
+    });
+
+    if (!allFiles.length) {
+      nav.innerHTML = '<div class="empty-state"><span class="icon">📭</span>No documentation files found.</div>';
+      document.getElementById('docTitle').textContent = 'No documents available';
+      document.getElementById('docContent').innerHTML = '<div class="empty-state"><span class="icon">📭</span>No documentation content is available.</div>';
+      return;
+    }
+
+    if (!sel.value && firstFile) {
+      sel.value = firstFile;
+    }
+    filterDocNav(searchQuery, true);
+    highlightDocNav(sel.value || firstFile);
+    document.getElementById('docCount').textContent = r.totalFiles ?? 0;
+  } catch(e) { console.error('loadDocIndex', e); }
+}
+
+const docNavSectionState = {};
+
+function toggleDocNavSection(sectionKey) {
+  const group = document.querySelector(`.doc-nav-group[data-section-key="${sectionKey}"]`);
+  if (!group) return;
+  const nextCollapsed = !group.classList.contains('collapsed');
+  group.classList.toggle('collapsed', nextCollapsed);
+  docNavSectionState[sectionKey] = nextCollapsed;
+}
+
+function filterDocNav(queryArg, skipInputRead = false) {
+  const query = (skipInputRead ? (queryArg || '') : ((document.getElementById('docSearch')?.value || '').trim().toLowerCase()));
+  const groups = Array.from(document.querySelectorAll('.doc-nav-group'));
+  let visibleGroupCount = 0;
+
+  groups.forEach(group => {
+    const key = group.dataset.sectionKey;
+    const items = Array.from(group.querySelectorAll('.doc-nav-item'));
+    let visibleInGroup = 0;
+
+    items.forEach(item => {
+      const text = item.dataset.search || item.textContent.toLowerCase();
+      const visible = !query || text.includes(query);
+      item.classList.toggle('hidden-by-search', !visible);
+      if (visible) visibleInGroup++;
+    });
+
+    const groupVisible = visibleInGroup > 0;
+    group.classList.toggle('hidden-by-search', !groupVisible);
+    if (groupVisible) visibleGroupCount++;
+
+    if (query && groupVisible) {
+      group.classList.remove('collapsed');
+    } else {
+      group.classList.toggle('collapsed', Boolean(docNavSectionState[key]));
+    }
+  });
+
+  const nav = document.getElementById('docNav');
+  if (!nav) return;
+  let noResult = document.getElementById('docNavNoResults');
+  if (!noResult) {
+    noResult = document.createElement('div');
+    noResult.id = 'docNavNoResults';
+    noResult.className = 'empty-state hidden-by-search';
+    noResult.innerHTML = '<span class="icon">🔎</span>No matching pages.';
+    nav.appendChild(noResult);
+  }
+  noResult.classList.toggle('hidden-by-search', visibleGroupCount !== 0);
+}
+
+function highlightDocNav(file) {
+  document.querySelectorAll('.doc-nav-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.file === file);
+  });
+  const active = document.querySelector('.doc-nav-item.active');
+  if (active) {
+    const group = active.closest('.doc-nav-group');
+    if (group) {
+      group.classList.remove('collapsed');
+      const key = group.dataset.sectionKey;
+      if (key) docNavSectionState[key] = false;
+    }
+  }
+}
+
+async function loadDocContentByFile(file) {
+  const sel = document.getElementById('docFile');
+  if (sel) sel.value = file;
+  highlightDocNav(file);
+  return loadDocContent();
+}
+
+async function loadTransactionReports() {
+  syncReportSymbolFromDashboard(false);
+  const accountId = document.getElementById('reportAccount')?.value ?? '';
+  const symbol = document.getElementById('reportSymbol')?.value ?? '';
+  const timeframe = document.getElementById('reportTimeframe')?.value ?? '';
+  const status = document.getElementById('reportStatus')?.value ?? '';
+  const reason = document.getElementById('reportReason')?.value ?? '';
+  const days = document.getElementById('reportDays')?.value ?? '7';
+  const staleMinutes = document.getElementById('reportStaleMinutes')?.value ?? '60';
+  const rowsEl = document.getElementById('reportRows');
+  const openRowsEl = document.getElementById('openSignalRows');
+  const missedRowsEl = document.getElementById('missedTradeRows');
+  const rejectReasonRowsEl = document.getElementById('rejectReasonRows');
+  const postMortemRowsEl = document.getElementById('postMortemRows');
+  if (rowsEl) {
+    rowsEl.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Loading transaction report...</td></tr>';
+  }
+  if (openRowsEl) {
+    openRowsEl.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">Loading open signals...</td></tr>';
+  }
+  if (missedRowsEl) {
+    missedRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">Loading missed trades...</td></tr>';
+  }
+  if (rejectReasonRowsEl) {
+    rejectReasonRowsEl.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reject reasons...</td></tr>';
+  }
+  if (postMortemRowsEl) {
+    postMortemRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">Loading rejected post-mortem...</td></tr>';
+  }
+  try {
+    const q = `symbol=${encodeURIComponent(symbol)}&days=${encodeURIComponent(days)}&limit=100${accountId ? `&accountId=${encodeURIComponent(accountId)}` : ''}`;
+    const postMortemLimit = 200;
+    const postMortemHorizon = 4;
+    const report = await fetch(`/api/v2/dashboard/reports/transactions?${q}`).then(r => r.json());
+    const oversightQ = `${q}&timeframe=${encodeURIComponent(timeframe)}&status=${encodeURIComponent(status)}&reason=${encodeURIComponent(reason)}&staleMinutes=${encodeURIComponent(staleMinutes)}`;
+    const oversight = await fetch(`/api/v2/dashboard/reports/signals?${oversightQ}`).then(r => r.json());
+    const postMortemQ = `symbol=${encodeURIComponent(symbol)}&timeframe=${encodeURIComponent(timeframe)}&days=${encodeURIComponent(days)}&horizonCandles=${encodeURIComponent(postMortemHorizon)}&limit=${encodeURIComponent(postMortemLimit)}${accountId ? `&accountId=${encodeURIComponent(accountId)}` : ''}`;
+    const postMortem = await fetch(`/api/v2/dashboard/reports/rejected-postmortem?${postMortemQ}`).then(r => r.json());
+
+    document.getElementById('reportTotalTrades').textContent = report.totalTrades ?? 0;
+    document.getElementById('reportExecutedToday').textContent = report.executedToday ?? 0;
+    document.getElementById('reportClosedTrades').textContent = report.closedTrades ?? 0;
+    document.getElementById('reportWinRate').textContent = `${report.winRate ?? 0}%`;
+    document.getElementById('reportPnlPeriod').textContent = report.pnlPeriod ?? 0;
+    document.getElementById('reportOpenSignals').textContent = oversight.openSignalCount ?? 0;
+    document.getElementById('reportMissedTrades').textContent = oversight.missedTradeCount ?? 0;
+    document.getElementById('reportRejectedSignals').textContent = oversight.rejectedSignalCount ?? 0;
+    document.getElementById('postMortemWouldWin').textContent = `${postMortem.wouldWinCount ?? 0} / ${postMortem.simulatedSignals ?? 0}`;
+    document.getElementById('postMortemCounterTrendWins').textContent = `${postMortem.counterTrendWouldWinCount ?? 0} / ${postMortem.counterTrendRejectedCount ?? 0}`;
+    document.getElementById('postMortemWinRate').textContent = `${postMortem.wouldWinRatePct ?? 0}%`;
+    const postMortemMetaEl = document.getElementById('postMortemMeta');
+    if (postMortemMetaEl) {
+      postMortemMetaEl.textContent = `Resolved: ${Number(postMortem.wouldWinCount ?? 0) + Number(postMortem.wouldLoseCount ?? 0)} | Ambiguous: ${postMortem.ambiguousCount ?? 0} | Horizon: ${postMortem.horizonCandles ?? postMortemHorizon} candles`;
+    }
+    const reportGeneratedAtEl = document.getElementById('reportGeneratedAt');
+    if (reportGeneratedAtEl) {
+      if (report.generatedAt) {
+        const rawGenerated = String(report.generatedAt);
+        const generatedDate = new Date(rawGenerated);
+        reportGeneratedAtEl.textContent = `Generated: ${Number.isNaN(generatedDate.getTime()) ? rawGenerated : generatedDate.toLocaleString()}`;
+        reportGeneratedAtEl.title = rawGenerated;
+      } else {
+        reportGeneratedAtEl.textContent = '';
+        reportGeneratedAtEl.title = '';
+      }
+    }
+
+    const rows = Array.isArray(report.rows) ? report.rows : [];
+    if (!rows.length) {
+      rowsEl.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">No transactions for selected filters.</td></tr>';
+    } else {
+      rowsEl.innerHTML = rows.map(r => {
+        const pnl = Number(r.pnl ?? 0);
+        const pnlCls = pnl >= 0 ? 'up' : 'dn';
+        const activityTime = r.closedAt || r.executedAt || '';
+        return `<tr>
+          <td>${formatUtcToLocalHtml(activityTime)}</td>
+          <td>${escapeHtml(r.symbol || '')}</td>
+          <td>${escapeHtml(r.action || '')}</td>
+          <td>${escapeHtml(String(r.executedPrice ?? ''))}</td>
+          <td>${escapeHtml(String(r.quantity ?? ''))}</td>
+          <td>${escapeHtml(r.outcome || '')}</td>
+          <td class="${pnlCls}">${escapeHtml(String(r.pnl ?? 0))}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    const openSignals = (Array.isArray(oversight.openSignals) ? oversight.openSignals : []).slice(0, 15);
+    if (!openSignals.length) {
+      openRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">No open signals for selected filters.</td></tr>';
+    } else {
+      openRowsEl.innerHTML = openSignals.map(s => `<tr>
+        <td>${formatUtcToLocalHtml(s.createdAt)}</td>
+        <td>${escapeHtml(s.symbol || '')}</td>
+        <td>${escapeHtml(s.action || '')}</td>
+        <td>${escapeHtml(s.confidence != null ? Number(s.confidence).toFixed(2) : '–')}</td>
+        <td>${s.entryPrice != null ? escapeHtml(formatAmount(s.entryPrice)) : '–'}</td>
+        <td>${s.stopLoss != null ? escapeHtml(formatAmount(s.stopLoss)) : '–'}</td>
+        <td>${s.takeProfit != null ? escapeHtml(formatAmount(s.takeProfit)) : '–'}</td>
+        <td>${escapeHtml(String(s.ageMinutes ?? ''))}</td>
+        <td title="${escapeHtml(String(s.executionDetail ?? ''))}">${escapeHtml(String(s.executionHint ?? ''))}</td>
+      </tr>`).join('');
+    }
+
+    const missedTrades = (Array.isArray(oversight.missedTrades) ? oversight.missedTrades : []).slice(0, 15);
+    if (!missedTrades.length) {
+      missedRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">No missed trades for selected filters.</td></tr>';
+    } else {
+      missedRowsEl.innerHTML = missedTrades.map(m => `<tr>
+        <td>${formatUtcToLocalText(m.createdAt)}</td>
+        <td>${escapeHtml(m.symbol || '')}</td>
+        <td>${escapeHtml(m.timeframeCode || '')}</td>
+        <td>${escapeHtml(m.action || '')}</td>
+        <td>${escapeHtml(m.confidence != null ? Number(m.confidence).toFixed(2) : '')}</td>
+        <td>${escapeHtml(String(m.entryPrice ?? ''))}</td>
+        <td>${escapeHtml(m.signalStatus || '')}</td>
+        <td class="col-reason">${escapeHtml(m.reason || '')}</td>
+        <td class="col-detailed">${escapeHtml(m.detailedReason || '')}</td>
+      </tr>`).join('');
+    }
+
+    const topRejectReasons = Array.isArray(oversight.topRejectReasons) ? oversight.topRejectReasons : [];
+    if (!topRejectReasons.length) {
+      rejectReasonRowsEl.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">No reject reasons for selected filters.</td></tr>';
+    } else {
+      rejectReasonRowsEl.innerHTML = topRejectReasons.map(r => `<tr>
+        <td>${escapeHtml(r.reason || 'Unknown')}</td>
+        <td>${escapeHtml(String(r.count ?? 0))}</td>
+      </tr>`).join('');
+    }
+
+    lastPostMortemRows = Array.isArray(postMortem.rows) ? postMortem.rows : [];
+    renderPostMortemRows(lastPostMortemRows);
+  } catch (e) {
+    console.error('loadTransactionReports', e);
+    rowsEl.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load transaction reports.</td></tr>';
+    if (openRowsEl) {
+      openRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load open signals.</td></tr>';
+    }
+    if (missedRowsEl) {
+      missedRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load missed trades.</td></tr>';
+    }
+    if (rejectReasonRowsEl) {
+      rejectReasonRowsEl.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load reject reasons.</td></tr>';
+    }
+    if (postMortemRowsEl) {
+      postMortemRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load rejected post-mortem report.</td></tr>';
+    }
+    lastPostMortemRows = [];
+    const postMortemMetaEl = document.getElementById('postMortemMeta');
+    if (postMortemMetaEl) {
+      postMortemMetaEl.textContent = 'Post-mortem data unavailable.';
+    }
+  }
+}
+
+async function exportSignalReport(format) {
+  const accountId = document.getElementById('reportAccount')?.value ?? '';
+  const symbol = document.getElementById('reportSymbol')?.value ?? '';
+  const timeframe = document.getElementById('reportTimeframe')?.value ?? '';
+  const status = document.getElementById('reportStatus')?.value ?? '';
+  const reason = document.getElementById('reportReason')?.value ?? '';
+  const days = document.getElementById('reportDays')?.value ?? '7';
+  const staleMinutes = document.getElementById('reportStaleMinutes')?.value ?? '60';
+
+  const q = `symbol=${encodeURIComponent(symbol)}&timeframe=${encodeURIComponent(timeframe)}&status=${encodeURIComponent(status)}&reason=${encodeURIComponent(reason)}&days=${encodeURIComponent(days)}&limit=100&staleMinutes=${encodeURIComponent(staleMinutes)}&format=${encodeURIComponent(format || 'csv')}${accountId ? `&accountId=${encodeURIComponent(accountId)}` : ''}`;
+  const url = `/api/v2/dashboard/reports/signals/export?${q}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Export failed (${res.status})`);
+    }
+
+    const blob = await res.blob();
+    const dl = document.createElement('a');
+    dl.href = URL.createObjectURL(blob);
+    dl.download = format === 'json' ? 'signal-oversight.json' : 'signal-oversight.csv';
+    document.body.appendChild(dl);
+    dl.click();
+    dl.remove();
+    URL.revokeObjectURL(dl.href);
+    showToast(`Exported ${format.toUpperCase()} report`);
+  } catch (e) {
+    console.error('exportSignalReport', e);
+    showToast('Export failed', 'error');
+  }
+}
+
+async function loadDocContent() {
+  const file = document.getElementById('docFile').value;
+  if (!file) {
+    document.getElementById('docTitle').textContent = 'Select a page from the navigation panel';
+    document.getElementById('docContent').innerHTML = '<div class="empty-state"><span class="icon">📋</span>Click a page in the navigation panel to open it.</div>';
+    return;
+  }
+  document.getElementById('docTitle').textContent = '⏳ Loading…';
+  try {
+    const doc = await fetch(`/api/v2/dashboard/docs/content?file=${encodeURIComponent(file)}`).then(r => r.json());
+    document.getElementById('docTitle').textContent = doc.title || doc.file || 'Document Preview';
+    document.getElementById('docContent').innerHTML = markdownToHtml(doc.content || 'No content.');
+    highlightDocNav(file);
+  } catch(e) { document.getElementById('docTitle').textContent = 'Error'; document.getElementById('docContent').textContent = String(e); }
+}
+
+async function loadAuditLogs() {
+  const limit = document.getElementById('auditLimit').value || '200';
+  const query = document.getElementById('auditQuery').value || '';
+  const pre = document.getElementById('auditLogs');
+  pre.innerHTML = '<span class="spinner"></span>  Loading…';
+  try {
+    const r = await fetch(`/api/v2/dashboard/logs/audit?limit=${encodeURIComponent(limit)}&query=${encodeURIComponent(query)}`).then(r => r.json());
+    pre.innerHTML = highlightedHtml(r.entries, query);
+    const cnt = Array.isArray(r.entries) ? r.entries.length : 0;
+    document.getElementById('auditStats').textContent = `${cnt} entries`;
+    const b = document.getElementById('badge-audit');
+    if (cnt > 0) { b.textContent = cnt > 99 ? '99+' : cnt; b.classList.add('visible'); }
+    pre.scrollTop = 0;
+  } catch(e) { pre.innerHTML = `<span class="log-line-error">Error: ${escapeHtml(String(e))}</span>`; showToast('Failed to load audit logs','error'); }
+}
+
+async function loadErrorLogs() {
+  const limit = document.getElementById('errorLimit').value || '200';
+  const query = document.getElementById('errorQuery').value || '';
+  const pre = document.getElementById('errorLogs');
+  pre.innerHTML = '<span class="spinner"></span>  Loading…';
+  try {
+    const r = await fetch(`/api/v2/dashboard/logs/errors?limit=${encodeURIComponent(limit)}&query=${encodeURIComponent(query)}`).then(r => r.json());
+    pre.innerHTML = highlightedHtml(r.entries, query);
+    const cnt = Array.isArray(r.entries) ? r.entries.length : 0;
+    document.getElementById('errorStats').textContent = `${cnt} entries`;
+    const b = document.getElementById('badge-errors');
+    if (cnt > 0) { b.textContent = cnt > 99 ? '99+' : cnt; b.classList.add('visible'); b.style.background = 'var(--accent3)'; }
+    pre.scrollTop = 0;
+  } catch(e) { pre.innerHTML = `<span class="log-line-error">Error: ${escapeHtml(String(e))}</span>`; showToast('Failed to load error logs','error'); }
+}
+
+async function refreshNewsForSymbol(symbol, forceNewsRefresh) {
+  if ((symbol || '').toUpperCase() === 'ALL') {
+    updateNewsRefreshMeta('News sync: using aggregated stored articles (ALL)', 'ok');
+    updateNewsRefreshCountdown();
+    return;
+  }
+  const mode = document.getElementById('dashboardRefresh')?.value || 'off';
+  if (!forceNewsRefresh && mode === 'off') {
+    updateNewsRefreshMeta('News sync: manual mode (refresh is off)', 'off');
+    updateNewsRefreshCountdown();
+    return;
+  }
+  try {
+    await fetch(`/api/v2/news/refresh?symbol=${encodeURIComponent(symbol)}&limit=5`, { method: 'POST' });
+    lastNewsFetchAtMs = Date.now();
+    updateNewsRefreshMeta(`News sync: healthy (${symbol} @ ${new Date(lastNewsFetchAtMs).toLocaleTimeString()})`, 'ok');
+    updateNewsRefreshCountdown();
+  } catch (e) {
+    updateNewsRefreshMeta(`News sync failed for ${symbol}`, 'error');
+    console.warn('refreshNewsForSymbol', e);
+  }
+}
+
+async function loadEventPipelineStatus() {
+  const badge = document.getElementById('eventPipelineBadge');
+  if (!badge) return;
+
+  const formatUtc = (iso) => {
+    if (!iso) return 'N/A';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return String(iso);
+    return d.toISOString().replace('T', ' ').replace('.000Z', ' UTC');
+  };
+
+  try {
+    const s = await fetch('/api/v2/dashboard/pipeline/event-status').then(r => r.json());
+    badge.className = 'pipeline-badge';
+    badge.title = '';
+    if (!s.hasRun) {
+      badge.textContent = 'Event chain: waiting';
+      badge.title = 'Waiting for first event-driven pipeline run';
+      return;
+    }
+
+    const stampUtc = formatUtc(s.lastRunAtUtc);
+    if (s.executionSkipped) {
+      badge.classList.add('warn');
+      badge.textContent = 'Event chain: execution skipped';
+      badge.title = `Last run (UTC): ${stampUtc}\nExecution stage: skipped\nReason: ${s.skipReason || 'window policy'}`;
+    } else {
+      badge.classList.add('ok');
+      badge.textContent = 'Event chain: execution stage ran';
+      badge.title = `Last run (UTC): ${stampUtc}\nExecution stage: ran`;
+    }
+  } catch (e) {
+    badge.textContent = 'Event chain: status unavailable';
+    badge.title = 'Could not load event pipeline status';
+  }
+}
+
+async function loadPipelineConfig() {
+  try {
+    const cfg = await fetch('/api/v2/dashboard/pipeline/config').then(r => r.json());
+    const setText = (id, value) => {
+      const el = document.getElementById(id);
+      if (el && value) el.textContent = value;
+    };
+    setText('pipelineIntradayLabel', cfg.intradayLabel);
+    setText('pipelineMarketDataLabel', `🕐 ${cfg.marketDataLabel || ''}`);
+    setText('pipelineAiLabel', `→ ${cfg.aiSignalLabel || ''}`);
+    setText('pipelineExecutionLabel', `→ ${cfg.executionLabel || ''}`);
+    setText('pipelineWindowLabel', `→ ${cfg.windowLabel || ''}`);
+  } catch (e) {
+    // Keep existing fallback labels when config endpoint is unavailable.
+  }
+}
+
+function getDashboardSymbolTitleLabel(symbol) {
+  const normalized = String(symbol ?? '').trim().toUpperCase();
+  return !normalized || normalized === 'ALL' ? 'ALL Symbols' : normalized;
+}
+
+function updateDashboardPairCardTitles(symbol) {
+  const label = getDashboardSymbolTitleLabel(symbol);
+  const openTitle = document.querySelector('#dashboardOpenSignalsTitle span:last-child');
+  const missedTitle = document.querySelector('#dashboardMissedTradesTitle span:last-child');
+  if (openTitle) openTitle.textContent = `Open Signals (${label})`;
+  if (missedTitle) missedTitle.textContent = `Missed Trades (${label})`;
+}
+
+async function loadDashboardPairCards(symbol) {
+  updateDashboardPairCardTitles(symbol);
+  const openRowsEl = document.getElementById('dashboardOpenSignalRows');
+  const missedRowsEl = document.getElementById('dashboardMissedTradeRows');
+  const reasonRowsEl = document.getElementById('dashboardSkipRejectReasonRows');
+  if (openRowsEl) {
+    openRowsEl.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Loading open signals…</td></tr>';
+  }
+  if (missedRowsEl) {
+    missedRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">Loading missed trades…</td></tr>';
+  }
+  if (reasonRowsEl) {
+    reasonRowsEl.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reason counts…</td></tr>';
+  }
+
+  try {
+    const isAll = !symbol || symbol.toUpperCase() === 'ALL';
+    const q = `symbol=${encodeURIComponent(isAll ? 'ALL' : symbol)}&timeframe=M15&status=&reason=&days=2&limit=50&staleMinutes=60`;
+    const oversight = await fetch(`/api/v2/dashboard/reports/signals?${q}`).then(r => r.json());
+
+    const openSignals = (Array.isArray(oversight.openSignals) ? oversight.openSignals : []).slice(0, 15);
+    const missedTrades = (Array.isArray(oversight.missedTrades) ? oversight.missedTrades : []).slice(0, 15);
+
+    document.getElementById('dashboardOpenSignalCount').textContent = `${openSignals.length} rows`;
+    document.getElementById('dashboardMissedTradeCount').textContent = `${missedTrades.length} rows`;
+
+    if (!openSignals.length) {
+      openRowsEl.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">No open signals${isAll ? '' : ' for ' + escapeHtml(symbol)}.</td></tr>`;
+    } else {
+      openRowsEl.innerHTML = openSignals.map(s => `<tr>
+        <td>${formatUtcToLocalHtml(s.createdAt)}</td>
+        <td>${escapeHtml(s.action || '')}</td>
+        <td>${escapeHtml(s.confidence != null ? Number(s.confidence).toFixed(2) : '–')}</td>
+        <td>${s.entryPrice != null ? escapeHtml(formatAmount(s.entryPrice)) : '–'}</td>
+        <td>${s.stopLoss != null ? escapeHtml(formatAmount(s.stopLoss)) : '–'}</td>
+        <td>${s.takeProfit != null ? escapeHtml(formatAmount(s.takeProfit)) : '–'}</td>
+        <td>${escapeHtml(String(s.ageMinutes ?? ''))}</td>
+        <td title="${escapeHtml(String(s.executionDetail ?? ''))}">${escapeHtml(String(s.executionHint ?? ''))}</td>
+      </tr>`).join('');
+    }
+
+    if (!missedTrades.length) {
+      missedRowsEl.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px;">No missed trades${isAll ? '' : ' for ' + escapeHtml(symbol)}.</td></tr>`;
+    } else {
+      missedRowsEl.innerHTML = missedTrades.map(m => `<tr>
+        <td>${formatUtcToLocalText(m.createdAt)}</td>
+        <td>${escapeHtml(m.symbol || '')}</td>
+        <td>${escapeHtml(m.timeframeCode || '')}</td>
+        <td>${escapeHtml(m.action || '')}</td>
+        <td>${escapeHtml(m.confidence != null ? Number(m.confidence).toFixed(2) : '')}</td>
+        <td>${escapeHtml(String(m.entryPrice ?? ''))}</td>
+        <td>${escapeHtml(m.signalStatus || '')}</td>
+        <td class="col-reason">${escapeHtml(m.reason || '')}</td>
+        <td class="col-detailed">${escapeHtml(m.detailedReason || '')}</td>
+      </tr>`).join('');
+    }
+
+    const reasonCounter = new Map();
+    for (const row of missedTrades) {
+      const reasonRaw = String(row.reason || '').trim();
+      if (!reasonRaw) continue;
+      let outcome = null;
+      let normalizedReason = reasonRaw;
+      const lower = reasonRaw.toLowerCase();
+      if (lower.startsWith('rejected:')) {
+        outcome = 'REJECTED';
+        normalizedReason = reasonRaw.substring(9).trim() || 'Rejected';
+      } else if (lower.startsWith('skipped:')) {
+        outcome = 'SKIPPED';
+        normalizedReason = reasonRaw.substring(8).trim() || 'Skipped';
+      }
+      if (!outcome) continue;
+      const key = `${outcome}|${normalizedReason}`;
+      reasonCounter.set(key, (reasonCounter.get(key) || 0) + 1);
+    }
+    const reasonRows = Array.from(reasonCounter.entries())
+      .map(([key, count]) => {
+        const idx = key.indexOf('|');
+        return {
+          outcome: key.substring(0, idx),
+          reason: key.substring(idx + 1),
+          count
+        };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+
+    const reasonCountEl = document.getElementById('dashboardSkipRejectCount');
+    if (reasonCountEl) {
+      reasonCountEl.textContent = `${reasonRows.length} reasons`;
+    }
+    if (reasonRowsEl) {
+      if (!reasonRows.length) {
+        reasonRowsEl.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">No skipped/rejected reasons for selected filters.</td></tr>';
+      } else {
+        reasonRowsEl.innerHTML = reasonRows.map(r => `<tr>
+          <td>${escapeHtml(r.outcome)}</td>
+          <td>${escapeHtml(r.reason)}</td>
+          <td>${escapeHtml(String(r.count))}</td>
+        </tr>`).join('');
+      }
+    }
+  } catch (e) {
+    console.error('loadDashboardPairCards', e);
+    document.getElementById('dashboardOpenSignalCount').textContent = 'error';
+    document.getElementById('dashboardMissedTradeCount').textContent = 'error';
+    const reasonCountEl = document.getElementById('dashboardSkipRejectCount');
+    if (reasonCountEl) reasonCountEl.textContent = 'error';
+    if (openRowsEl) {
+      openRowsEl.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load open signals.</td></tr>';
+    }
+    if (missedRowsEl) {
+      missedRowsEl.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load missed trades.</td></tr>';
+    }
+    if (reasonRowsEl) {
+      reasonRowsEl.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load reason counts.</td></tr>';
+    }
+  }
+}
+
+function renderAdminRows(targetId, dataMap) {
+  const tbody = document.getElementById(targetId);
+  if (!tbody) return;
+  const entries = Object.entries(dataMap || {});
+  if (!entries.length) {
+    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">No data available.</td></tr>';
+    return;
+  }
+  const formatAdminValue = (key, value) => {
+    if (value === null || value === undefined || value === '') return 'N/A';
+    const raw = String(value);
+    if (String(key).includes('(UTC)') && /^\d{4}-\d{2}-\d{2}T/.test(raw)) {
+      const d = new Date(raw);
+      if (!Number.isNaN(d.getTime())) {
+        return `<span title="${escapeHtml(raw)}">${escapeHtml(d.toLocaleString())}</span>`;
+      }
+    }
+    return escapeHtml(raw);
+  };
+  tbody.innerHTML = entries.map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${formatAdminValue(k, v)}</td></tr>`).join('');
+}
+
+async function loadBrokerRules(symbol) {
+  const tbody = document.getElementById('adminBrokerRuleRows');
+  if (!tbody) return;
+  const selected = symbol || document.getElementById('adminBrokerSymbol')?.value || 'BTCUSDT';
+  tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:24px;">Loading broker rules…</td></tr>';
+  try {
+    const data = await fetch(`/api/v2/dashboard/admin/broker-rules?symbol=${encodeURIComponent(selected)}`).then(r => r.json());
+    if (data.status === 'error') {
+      throw new Error(data.message || 'Failed to load broker rules');
+    }
+    renderAdminRows('adminBrokerRuleRows', {
+      'Requested Symbol': data.symbol,
+      'Broker Reported Symbol': data.brokerReportedSymbol || data.symbol,
+      'Digits': data.digits,
+      'Point': data.point,
+      'Min Lot': data.minLot,
+      'Max Lot': data.maxLot,
+      'Lot Step': data.lotStep,
+      'Stop Level (points)': data.stopLevelPoints,
+      'Freeze Level (points)': data.freezeLevelPoints,
+      'Spread (points)': data.spreadPoints
+    });
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="2" style="text-align:center;color:var(--accent3);padding:24px;">${escapeHtml(String(e.message || e))}</td></tr>`;
+  }
+}
+
+async function loadAdministrationData() {
+  await loadPipelineConfig();
+  await loadEventPipelineStatus();
+
+  try {
+    const overview = await fetch('/api/v2/dashboard/admin/overview').then(r => r.json());
+    renderAdminRows('adminSchedulerRows', overview.scheduler || {});
+    renderAdminRows('adminConfigRows', overview.configuration || {});
+    renderAdminRows('adminImmediateExecutionRows', overview.immediateExecution || {});
+    renderAdminRows('adminBrokerVsDbRows', overview.brokerVsDb || {});
+  } catch (e) {
+    renderAdminRows('adminSchedulerRows', { 'Error': String(e.message || e) });
+    renderAdminRows('adminConfigRows', { 'Error': String(e.message || e) });
+    renderAdminRows('adminImmediateExecutionRows', { 'Error': String(e.message || e) });
+    renderAdminRows('adminBrokerVsDbRows', { 'Error': String(e.message || e) });
+  }
+
+  const summaryAll = await fetch('/api/v2/dashboard/summary?symbol=ALL&candleLimit=1').then(r => r.json()).catch(() => ({}));
+  document.getElementById('signalsNew24h').textContent = summaryAll.signalsNew24h ?? 0;
+  document.getElementById('signalsRejected24h').textContent = summaryAll.signalsRejected24h ?? 0;
+  document.getElementById('signalsExecuted24h').textContent = summaryAll.signalsExecuted24h ?? 0;
+
+  const brokerSymbolSelect = document.getElementById('adminBrokerSymbol');
+  if (brokerSymbolSelect?.value) {
+    await loadBrokerRules(brokerSymbolSelect.value);
+  }
+
+  await loadTrendReadiness();
+  await loadTradingAccounts();
+  await loadAccountOperations();
+  // Keep dashboard account selector in sync when accounts are managed
+  await loadAccountsForDashboard();
+}
+
+const accountById = {};
+
+function normalizeAccountType(value) {
+  return String(value || '').trim().toUpperCase() === 'PAPER' ? 'PAPER' : 'EXECUTION';
+}
+
+function nextPaperAccountNumber() {
+  const base = 900000;
+  const paperNumbers = Object.values(accountById)
+    .filter(item => normalizeAccountType(item.accountType) === 'PAPER')
+    .map(item => Number(item.accountNumber))
+    .filter(n => Number.isFinite(n) && n > 0);
+  const maxKnown = paperNumbers.length ? Math.max(...paperNumbers) : base;
+  return String(maxKnown + 1);
+}
+
+function ensurePaperAccountNumber() {
+  const typeEl = document.getElementById('accType');
+  const idEl = document.getElementById('accId');
+  const numberEl = document.getElementById('accNumber');
+  if (!typeEl || !numberEl || !idEl) return;
+  const isPaper = normalizeAccountType(typeEl.value) === 'PAPER';
+  const isNew = !idEl.value;
+  const current = String(numberEl.value || '').trim();
+  if (isPaper && isNew && (!current || Number(current) <= 0)) {
+    numberEl.value = nextPaperAccountNumber();
+  }
+}
+
+function syncAccountNumberFieldState(type) {
+  const normalized = normalizeAccountType(type);
+  const input = document.getElementById('accNumber');
+  const hint = document.getElementById('accNumberHint');
+  const modeLabel = document.getElementById('accNumberModeLabel');
+  if (!input) return;
+
+  const isPaper = normalized === 'PAPER';
+  input.readOnly = isPaper;
+  input.placeholder = isPaper ? 'Auto-generated' : '123456';
+  input.style.background = isPaper ? 'rgba(245,158,11,.08)' : 'var(--bg-input)';
+  input.style.borderColor = isPaper ? 'rgba(245,158,11,.28)' : 'var(--border)';
+  input.style.color = isPaper ? 'var(--accent4)' : 'var(--text-primary)';
+  input.style.cursor = isPaper ? 'not-allowed' : 'text';
+  input.title = isPaper ? 'Paper account number is generated automatically and cannot be edited.' : '';
+
+  if (modeLabel) {
+    modeLabel.textContent = isPaper ? '(locked for PAPER — auto-generated)' : '(editable for EXECUTION)';
+    modeLabel.style.color = isPaper ? 'var(--accent4)' : 'var(--text-muted)';
+  }
+  if (hint) {
+    hint.textContent = isPaper
+      ? 'Paper account numbers are assigned automatically to keep simulation accounts consistent.'
+      : 'Execution accounts can use a broker/exchange account number.';
+    hint.style.color = isPaper ? 'var(--accent4)' : 'var(--text-muted)';
+  }
+}
+
+/* ── Trading Account Modal ─────────────────────────── */
+function _updateAccountModalTheme(type) {
+  const normalized = normalizeAccountType(type);
+  const icon    = document.getElementById('accModalIcon');
+  const title   = document.getElementById('accModalTitle');
+  const subtitle= document.getElementById('accModalSubtitle');
+  const connSec = document.getElementById('accConnectionSection');
+  const isNew   = !document.getElementById('accId').value;
+  if (normalized === 'PAPER') {
+    if (icon) { icon.textContent = '📄'; icon.style.background='rgba(245,158,11,.12)'; icon.style.borderColor='rgba(245,158,11,.35)'; }
+    if (title) title.textContent  = isNew ? 'New Paper Account' : 'Edit Paper Account';
+    if (subtitle) subtitle.textContent = 'Simulated account for backtesting and model training workflows';
+    if (connSec) connSec.style.opacity = '0.45';
+  } else {
+    if (icon) { icon.textContent = '⚡'; icon.style.background='rgba(0,200,150,.12)'; icon.style.borderColor='rgba(0,200,150,.3)'; }
+    if (title) title.textContent  = isNew ? 'New Execution Account' : 'Edit Execution Account';
+    if (subtitle) subtitle.textContent = 'Configure live trade routing credentials and risk parameters';
+    if (connSec) connSec.style.opacity = '1';
+  }
+}
+
+function openAccountModal(presetType) {
+  resetTradingAccountForm();
+  const normalized = normalizeAccountType(presetType || 'EXECUTION');
+  document.getElementById('accType').value = normalized;
+  syncAccountNumberFieldState(normalized);
+  if (normalized === 'PAPER') {
+    document.getElementById('accCode').value         = 'PAPER_TRAIN_01';
+    document.getElementById('accDisplayName').value  = 'Paper Training Account';
+    document.getElementById('accHost').value         = 'paper-sim';
+    document.getElementById('accPort').value         = '0';
+    document.getElementById('accTimeout').value      = '0';
+    document.getElementById('accPriority').value     = '200';
+    ensurePaperAccountNumber();
+  } else {
+    document.getElementById('accCode').value         = 'EXEC_LIVE_01';
+    document.getElementById('accDisplayName').value  = 'Live Execution Account';
+    document.getElementById('accHost').value         = '127.0.0.1';
+    document.getElementById('accPort').value         = '5000';
+    document.getElementById('accTimeout').value      = '5000';
+    document.getElementById('accPriority').value     = '100';
+  }
+  _updateAccountModalTheme(normalized);
+  const modal = document.getElementById('accountModal');
+  if (modal) { modal.style.display = 'block'; document.body.style.overflow = 'hidden'; }
+  const statusEl = document.getElementById('accountModalStatus');
+  if (statusEl) statusEl.textContent = '';
+}
+
+function closeAccountModal() {
+  const modal = document.getElementById('accountModal');
+  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+function handleAccountModalBackdrop(e) {
+  if (e.target === document.getElementById('accountModal')) closeAccountModal();
+}
+
+function resetTradingAccountForm() {
+  document.getElementById('accId').value                  = '';
+  document.getElementById('accType').value                = 'EXECUTION';
+  document.getElementById('accCode').value                = '';
+  document.getElementById('accNumber').value              = '';
+  document.getElementById('accDisplayName').value         = '';
+  document.getElementById('accHost').value                = '127.0.0.1';
+  document.getElementById('accPort').value                = '5000';
+  document.getElementById('accTimeout').value             = '5000';
+  document.getElementById('accPriority').value            = '100';
+  document.getElementById('accRiskMultiplier').value      = '1.00';
+  document.getElementById('accEmails').value              = '';
+  document.getElementById('accReportSubjectTemplate').value = '';
+  document.getElementById('accReportHtmlTemplate').value  = '';
+  document.getElementById('accEnabled').checked           = true;
+  const lbl = document.getElementById('accEnabledLabel');
+  if (lbl) lbl.textContent = 'Enabled';
+  syncAccountNumberFieldState('EXECUTION');
+}
+
+function presetTradingAccountType(type) {
+  openAccountModal(type);
+}
+
+function editTradingAccountById(id) {
+  const item = accountById[String(id)];
+  if (!item) return;
+  const accountType = normalizeAccountType(item.accountType);
+  resetTradingAccountForm();
+  document.getElementById('accId').value                      = item.id ?? '';
+  document.getElementById('accType').value                    = accountType;
+  document.getElementById('accCode').value                    = item.accountCode ?? '';
+  document.getElementById('accNumber').value                  = item.accountNumber ?? '';
+  document.getElementById('accDisplayName').value             = item.displayName ?? '';
+  document.getElementById('accHost').value                    = item.host ?? '';
+  document.getElementById('accPort').value                    = item.port ?? '';
+  document.getElementById('accTimeout').value                 = item.timeoutMs ?? 5000;
+  document.getElementById('accPriority').value                = item.priorityOrder ?? 100;
+  document.getElementById('accRiskMultiplier').value          = item.riskMultiplier ?? '1.00';
+  document.getElementById('accEmails').value                  = item.reportEmails ?? '';
+  document.getElementById('accReportSubjectTemplate').value   = item.reportSubjectTemplate ?? '';
+  document.getElementById('accReportHtmlTemplate').value      = item.reportHtmlTemplate ?? '';
+  document.getElementById('accEnabled').checked               = Boolean(item.enabled);
+  const lbl = document.getElementById('accEnabledLabel');
+  if (lbl) { lbl.textContent = item.enabled ? 'Enabled' : 'Disabled'; lbl.style.color = item.enabled ? 'var(--accent)' : 'var(--accent3)'; }
+  syncAccountNumberFieldState(accountType);
+  _updateAccountModalTheme(accountType);
+  const modal = document.getElementById('accountModal');
+  if (modal) { modal.style.display = 'block'; document.body.style.overflow = 'hidden'; }
+  const statusEl = document.getElementById('accountModalStatus');
+  if (statusEl) statusEl.textContent = '';
+}
+
+// Wire the type selector to update the modal header theme live
+document.addEventListener('DOMContentLoaded', () => {
+  const typeEl = document.getElementById('accType');
+  if (typeEl) typeEl.addEventListener('change', () => {
+    _updateAccountModalTheme(typeEl.value);
+    syncAccountNumberFieldState(typeEl.value);
+    ensurePaperAccountNumber();
+  });
+  const enabledEl = document.getElementById('accEnabled');
+  if (enabledEl) enabledEl.addEventListener('change', () => {
+    const lbl = document.getElementById('accEnabledLabel');
+    if (lbl) { lbl.textContent = enabledEl.checked ? 'Enabled' : 'Disabled'; lbl.style.color = enabledEl.checked ? 'var(--accent)' : 'var(--accent3)'; }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('accountModal');
+      if (modal && modal.style.display !== 'none') closeAccountModal();
+    }
+  });
+});
+
+async function loadTradingAccounts() {
+  const tbody = document.getElementById('adminAccountsRows');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:24px;">Loading accounts…</td></tr>';
+  try {
+    const payload = await fetch('/api/v2/accounts').then(r => r.json());
+    const rows = Array.isArray(payload.items) ? payload.items : [];
+    Object.keys(accountById).forEach(k => delete accountById[k]);
+    rows.forEach(item => { accountById[String(item.id)] = item; });
+
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:32px;">No accounts configured yet. Use the buttons above to add your first account.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(item => {
+      const type = normalizeAccountType(item.accountType);
+      const typeBadge = type === 'PAPER'
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:var(--accent4);border:1px solid rgba(245,158,11,.25);">📄 PAPER</span>`
+        : `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(0,200,150,.1);color:var(--accent);border:1px solid rgba(0,200,150,.25);">⚡ EXEC</span>`;
+      const statusBadge = item.enabled
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(0,200,150,.08);color:var(--accent);border:1px solid rgba(0,200,150,.2);">● Active</span>`
+        : `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,107,107,.08);color:var(--accent3);border:1px solid rgba(255,107,107,.2);">○ Disabled</span>`;
+      const endpoint = item.host ? `${escapeHtml(String(item.host))}:${escapeHtml(String(item.port ?? ''))}` : '—';
+      return `<tr>
+        <td style="color:var(--text-muted);font-size:12px;">${escapeHtml(String(item.id ?? ''))}</td>
+        <td>${typeBadge}</td>
+        <td style="font-weight:600;font-family:monospace;font-size:13px;">${escapeHtml(String(item.accountCode ?? ''))}</td>
+        <td style="color:var(--text-secondary);">${escapeHtml(String(item.displayName ?? ''))}</td>
+        <td style="color:var(--text-muted);font-size:12px;">${escapeHtml(String(item.accountNumber ?? '—'))}</td>
+        <td style="font-family:monospace;font-size:12px;color:var(--text-muted);">${endpoint}</td>
+        <td style="color:var(--text-muted);font-size:12px;">${escapeHtml(String(item.priorityOrder ?? ''))}</td>
+        <td style="color:var(--text-secondary);">${escapeHtml(String(item.riskMultiplier ?? '1.0'))}×</td>
+        <td>${statusBadge}</td>
+        <td>
+          <button class="btn btn-secondary" onclick="editTradingAccountById(${item.id})" style="height:30px;padding:0 12px;font-size:12px;">Edit</button>
+          <button class="btn btn-secondary" onclick="deleteTradingAccount(${item.id})" style="height:30px;padding:0 12px;font-size:12px;border-color:rgba(255,107,107,.3);color:var(--accent3);">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+    applyTableDataLabels && applyTableDataLabels('adminAccountsRows');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load accounts: ${escapeHtml(String(e.message || e))}</td></tr>`;
+  }
+}
+
+async function saveTradingAccount() {
+  const modalStatus = document.getElementById('accountModalStatus');
+  const cardStatus  = document.getElementById('accountConfigStatus');
+  const saveBtn     = document.getElementById('accSaveBtn');
+  const id = document.getElementById('accId').value;
+  const accountType = normalizeAccountType(document.getElementById('accType').value);
+  const accNumberEl = document.getElementById('accNumber');
+  let accountNumberText = String(accNumberEl?.value || '').trim();
+  if (accountType === 'PAPER' && (!accountNumberText || Number(accountNumberText) <= 0)) {
+    accountNumberText = nextPaperAccountNumber();
+    if (accNumberEl) accNumberEl.value = accountNumberText;
+  }
+  const parsedAccountNumber = Number(accountNumberText);
+  const accountNumber = Number.isFinite(parsedAccountNumber) && parsedAccountNumber > 0
+    ? parsedAccountNumber
+    : null;
+
+  const body  = {
+    accountType,
+    accountCode:           document.getElementById('accCode').value,
+    accountNumber,
+    displayName:           document.getElementById('accDisplayName').value,
+    host:                  document.getElementById('accHost').value,
+    port:                  Number(document.getElementById('accPort').value),
+    timeoutMs:             Number(document.getElementById('accTimeout').value),
+    enabled:               document.getElementById('accEnabled').checked,
+    priorityOrder:         Number(document.getElementById('accPriority').value),
+    riskMultiplier:        Number(document.getElementById('accRiskMultiplier').value),
+    reportEmails:          document.getElementById('accEmails').value,
+    reportSubjectTemplate: document.getElementById('accReportSubjectTemplate').value,
+    reportHtmlTemplate:    document.getElementById('accReportHtmlTemplate').value
+  };
+  try {
+    if (modalStatus) modalStatus.textContent = 'Saving…';
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.6'; }
+    const method = id ? 'PUT' : 'POST';
+    const url    = id ? `/api/v2/accounts/${encodeURIComponent(id)}` : '/api/v2/accounts';
+    const res    = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(`Save failed (${res.status})`);
+    if (cardStatus) { cardStatus.textContent = id ? 'Account updated.' : 'Account created.'; cardStatus.style.color = 'var(--accent)'; }
+    closeAccountModal();
+    await loadTradingAccounts();
+  } catch (e) {
+    if (modalStatus) { modalStatus.textContent = `Error: ${String(e.message || e)}`; modalStatus.style.color = 'var(--accent3)'; }
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
+  }
+}
+
+async function deleteTradingAccount(id) {
+  if (!confirm(`Delete account #${id}? This cannot be undone.`)) return;
+  const status = document.getElementById('accountConfigStatus');
+  try {
+    if (status) { status.textContent = 'Deleting…'; status.style.color = 'var(--text-muted)'; }
+    const res = await fetch(`/api/v2/accounts/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`Delete failed (${res.status})`);
+    if (status) { status.textContent = `Account #${id} deleted.`; status.style.color = 'var(--accent3)'; }
+    await loadTradingAccounts();
+  } catch (e) {
+    if (status) { status.textContent = `Error: ${String(e.message || e)}`; status.style.color = 'var(--accent3)'; }
+  }
+}
+
+async function loadAccountOperations() {
+  const auditRows = document.getElementById('adminAccountAuditRows');
+  const reconcileRows = document.getElementById('adminAccountReconcileRows');
+  const meta = document.getElementById('adminAccountOpsMeta');
+  if (!auditRows || !reconcileRows) return;
+
+  auditRows.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">Loading audits…</td></tr>';
+  reconcileRows.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reconciliations…</td></tr>';
+  if (meta) meta.textContent = '';
+
+  try {
+    const payload = await fetch('/api/v2/accounts/operations').then(r => r.json());
+    const audits = Array.isArray(payload.auditEntries) ? payload.auditEntries : [];
+    const reconciliations = Array.isArray(payload.reconciliationEntries) ? payload.reconciliationEntries : [];
+
+    auditRows.innerHTML = audits.length
+      ? audits.map(a => `<tr>
+          <td>${formatUtcToLocalHtml(a.createdAt)}</td>
+          <td>${escapeHtml(String(a.actor || ''))}</td>
+          <td>${escapeHtml(String(a.action || ''))}</td>
+          <td>${escapeHtml(String(a.accountCode || ''))}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">No audit entries yet.</td></tr>';
+
+    reconcileRows.innerHTML = reconciliations.length
+      ? reconciliations.map(r => `<tr>
+          <td>${formatUtcToLocalHtml(r.reconciledAt)}</td>
+          <td>${escapeHtml(String(r.accountCode || ''))}</td>
+          <td>${escapeHtml(String(r.closedTrades ?? 0))}</td>
+          <td>${escapeHtml(String(r.matchedTrades ?? 0))}</td>
+          <td>${escapeHtml(String(r.unmatchedTrades ?? 0))}</td>
+          <td>${escapeHtml(String(r.totalClosedPnl ?? 0))}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">No reconciliation entries yet.</td></tr>';
+
+    if (meta) {
+      meta.textContent = `Generated: ${formatUtcToLocalText(payload.generatedAt || '')}`;
+    }
+  } catch (e) {
+    const message = escapeHtml(String(e.message || e));
+    auditRows.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load audits: ${message}</td></tr>`;
+    reconcileRows.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load reconciliations: ${message}</td></tr>`;
+  }
+}
+
+async function loadTrendReadiness() {
+  const tbody = document.getElementById('adminTrendReadinessRows');
+  const hours = document.getElementById('adminTrendHours')?.value || '48';
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Loading trend readiness…</td></tr>';
+  try {
+    const response = await fetch(`/api/v2/dashboard/admin/trend-readiness?hours=${encodeURIComponent(hours)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} while loading trend readiness`);
+    }
+    const payload = await response.json();
+    const rows = Array.isArray(payload.rows) ? payload.rows : [];
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">No trend readiness data available.</td></tr>';
+      applyTableDataLabels('adminTrendReadinessRows');
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${escapeHtml(String(r.symbol ?? ''))}</td>
+      <td>${escapeHtml(String(r.h1CandlesLastHours ?? 0))}</td>
+      <td>${escapeHtml(String(r.h1IndicatorsLastHours ?? 0))}</td>
+      <td>${escapeHtml(String(r.h1IndicatorCoveragePct ?? 0))}%</td>
+      <td>${escapeHtml(String(r.h1Ema200ReadyLastHours ?? 0))}</td>
+      <td>${formatUtcToLocalHtml(r.firstH1Ema200At)}</td>
+      <td>${escapeHtml(String(r.status ?? 'UNKNOWN'))}</td>
+    </tr>`).join('');
+    applyTableDataLabels('adminTrendReadinessRows');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--accent3);padding:24px;">Failed to load trend readiness: ${escapeHtml(String(e.message || e))}</td></tr>`;
+    applyTableDataLabels('adminTrendReadinessRows');
+  }
+}
+
+function setCandlesPanelState(disabled) {
+  const card = document.getElementById('candlesCard');
+  const notice = document.getElementById('candlesPanelNotice');
+  if (card) card.classList.toggle('candles-disabled', Boolean(disabled));
+  if (notice) notice.classList.toggle('visible', Boolean(disabled));
+}
+
+function getCandlesTimeframe() {
+  return document.getElementById('candlesTimeframe')?.value || 'M1';
+}
+
+function updateCandlesCardTitle(timeframe = getCandlesTimeframe(), symbol = document.getElementById('symbol')?.value || 'BTCUSDT') {
+  const titleEl = document.querySelector('#candlesCardTitle span:last-child');
+  if (titleEl) {
+    const tf = String(timeframe || 'M1').toUpperCase();
+    const sym = String(symbol || 'BTCUSDT').toUpperCase();
+    titleEl.textContent = `Latest Candles (${sym} · ${tf})`;
+  }
+}
+
+function onCandlesTimeframeChange() {
+  const timeframe = getCandlesTimeframe();
+  localStorage.setItem('cryptoproCandlesTimeframe', timeframe);
+  updateCandlesCardTitle(timeframe);
+  loadData(false);
+}
+
+function formatCandlePrice(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '-';
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+}
+
+function formatCandleVolume(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '-';
+  return n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+function renderLatestCandlesRows(candles) {
+  const tbody = document.getElementById('candles');
+  if (!tbody) return;
+
+  if (!Array.isArray(candles) || !candles.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">No candles available.</td></tr>';
+    return;
+  }
+
+  const volumes = candles
+    .map(c => Number(c?.volume))
+    .filter(v => Number.isFinite(v));
+  const avgVolume = volumes.length ? (volumes.reduce((sum, v) => sum + v, 0) / volumes.length) : 0;
+
+  tbody.innerHTML = candles.map(c => `
+    <tr>
+      <td>${formatUtcToLocalText(c.openTime)}</td>
+      <td>${formatCandlePrice(c.open)}</td>
+      <td>${formatCandlePrice(c.high)}</td>
+      <td>${formatCandlePrice(c.low)}</td>
+      <td>${formatCandlePrice(c.close)}</td>
+      <td class="${Number(c.volume) > avgVolume ? 'volume-high' : 'volume-low'}">${formatCandleVolume(c.volume)}</td>
+    </tr>
+  `).join('');
+}
+
+async function loadData(forceNewsRefresh = false) {
+  try {
+    const selectedSymbol = document.getElementById('symbol')?.value || 'BTCUSDT';
+
+    // Fetch overview/regime with safe fallbacks so one failing API does not blank the dashboard.
+    let overview = {};
+    let regime = { available: false };
+    let overviewOk = false;
+
+    try {
+      const overviewResp = await fetch('/api/v1/dashboard/overview', { cache: 'no-store' });
+      if (overviewResp.ok) {
+        overview = await overviewResp.json();
+        overviewOk = true;
+      } else {
+        console.error('dashboard-overview', overviewResp.status);
+      }
+    } catch (overviewErr) {
+      console.error('dashboard-overview', overviewErr);
+    }
+
+    try {
+      const regimeResp = await fetch(`/api/v1/signals/regime/latest?symbol=${encodeURIComponent(selectedSymbol)}`, { cache: 'no-store' });
+      if (regimeResp.ok) {
+        regime = await regimeResp.json();
+      } else {
+        console.error('dashboard-regime', regimeResp.status);
+      }
+    } catch (regimeErr) {
+      console.error('dashboard-regime', regimeErr);
+    }
+
+    if (!overviewOk) {
+      if (!dashboardOverviewUnavailableNotified) {
+        showToast('Overview API unavailable; showing defaults', 'error');
+        dashboardOverviewUnavailableNotified = true;
+      }
+    } else {
+      dashboardOverviewUnavailableNotified = false;
+    }
+
+    const kpis = overview.kpis || {};
+    const signalSummary = overview.signalSummary || {};
+    const portfolio = overview.portfolio || {};
+    const transactions = overview.recentTransactions || [];
+    let txReport = null;
+
+    try {
+      const txResp = await fetch('/api/v2/dashboard/reports/transactions?symbol=ALL&days=30&limit=1', { cache: 'no-store' });
+      if (txResp.ok) {
+        txReport = await txResp.json();
+      }
+    } catch (txErr) {
+      console.error('dashboard-transaction-report', txErr);
+    }
+
+    // Calculate key KPIs
+    const openSignals = Math.max(0,
+      Number(signalSummary.totalSignals || 0) -
+      Number(signalSummary.wins || 0) -
+      Number(signalSummary.losses || 0)
+    );
+
+    const executedToday = transactions.filter(t => {
+      const txTime = new Date(t.timestamp);
+      const now = new Date();
+      return txTime.toDateString() === now.toDateString() &&
+             ['FILLED', 'PARTIAL'].includes(String(t.status || '').toUpperCase());
+    }).length;
+
+    const persistedTotalTrades = Number(txReport?.totalTrades ?? NaN);
+    const persistedClosedTrades = Number(txReport?.closedTrades ?? NaN);
+    const totalTrades = Number.isFinite(persistedTotalTrades) ? persistedTotalTrades : Number(kpis.totalTransactions || 0);
+    const closedTrades = Number.isFinite(persistedClosedTrades)
+      ? persistedClosedTrades
+      : Math.max(0, totalTrades - (portfolio.positions || []).length);
+    const openTrades = Math.max(0, totalTrades - closedTrades);
+    const pnlToday = Number(portfolio.totalRealizedPnl ?? txReport?.netPnl ?? 0);
+
+    // Update dashboard display
+    document.getElementById('todayBasis').textContent = 'Today basis: UTC';
+    document.getElementById('openSignals').textContent = String(openSignals);
+    document.getElementById('executed').textContent = String(executedToday);
+    document.getElementById('totalTrades').textContent = String(totalTrades);
+    document.getElementById('openTrades').textContent = String(openTrades);
+    document.getElementById('closedTrades').textContent = String(closedTrades);
+
+    const pnlEl = document.getElementById('pnl');
+    pnlEl.textContent = formatCurrency(pnlToday);
+    pnlEl.className = 'kpi-value ' + (pnlToday >= 0 ? 'positive' : 'negative');
+
+    const regimeEl = document.getElementById('marketRegime');
+    const regimeConfidenceEl = document.getElementById('marketRegimeConfidence');
+    if (regimeEl && regimeConfidenceEl) {
+      if (regime && regime.available) {
+        const regimeKeyRaw = String(regime.regime || 'RANGING').toUpperCase();
+        const regimeKey = regimeKeyRaw === 'HIGH_MANIPULATION' ? 'HIGH_VOLATILITY' : regimeKeyRaw;
+        const regimeLabel = regimeKey.replaceAll('_', ' ');
+        const confidence = Number(regime.confidence ?? 0);
+        regimeEl.textContent = regimeLabel;
+        regimeEl.className = 'kpi-value';
+        regimeConfidenceEl.textContent = `Confidence: ${(Math.max(0, Math.min(1, confidence)) * 100).toFixed(1)}%`;
+        applyRegimeKpiStyle(regimeKey, true);
+      } else {
+        regimeEl.textContent = 'N/A';
+        regimeEl.className = 'kpi-value';
+        regimeConfidenceEl.textContent = 'Confidence: –';
+        applyRegimeKpiStyle('RANGING', false);
+      }
+    }
+
+    // Update portfolio metrics
+    document.getElementById('mt4Balance').textContent = formatCurrency(portfolio.cashBalance);
+    document.getElementById('mt4Equity').textContent = formatCurrency(portfolio.equity);
+    document.getElementById('mt4FreeMargin').textContent = formatCurrency(portfolio.totalRealizedPnl);
+
+    // Load Open Signals and Missed Trades cards for selected symbol
+    loadDashboardPairCards(selectedSymbol);
+
+    // Load latest candles from market data
+    const tbody = document.getElementById('candles');
+    const normalizedSymbol = String(selectedSymbol || '').trim().toUpperCase();
+    const symbolSpecific = normalizedSymbol && normalizedSymbol !== 'ALL';
+    setCandlesPanelState(!symbolSpecific);
+    const candlesTimeframe = getCandlesTimeframe();
+    updateCandlesCardTitle(candlesTimeframe, selectedSymbol);
+
+    if (!symbolSpecific) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">Select a specific symbol to view candles.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">Loading candles...</td></tr>';
+    try {
+      const candles = await fetch(`/api/v1/dashboard/latest-candles?symbol=${encodeURIComponent(selectedSymbol)}&timeframe=${encodeURIComponent(candlesTimeframe)}&limit=12`, { cache: 'no-store' }).then(r => r.json());
+      renderLatestCandlesRows(candles);
+    } catch (candlesErr) {
+      console.error('latest-candles', candlesErr);
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--accent3);">Failed to load candles.</td></tr>';
+    }
+
+  } catch (e) {
+    setCandlesPanelState(false);
+    console.error('loadData', e);
+    showToast('Dashboard data load error', 'error');
+
+    const regimeEl = document.getElementById('marketRegime');
+    const regimeConfidenceEl = document.getElementById('marketRegimeConfidence');
+    if (regimeEl && regimeConfidenceEl) {
+      regimeEl.textContent = 'N/A';
+      regimeConfidenceEl.textContent = 'Confidence: –';
+      regimeEl.className = 'kpi-value';
+      applyRegimeKpiStyle('RANGING', false);
+    }
+  }
+}
+
+async function openDocumentationFile(file, label) {
+  const docNavItem = document.querySelector('[data-page=page-documentation]');
+  navigate(docNavItem, 'page-documentation', 'Documentation — ' + label);
+  // Ensure doc index is loaded first
+  if (!docNavItem.dataset.loaded) {
+    docNavItem.dataset.loaded = '1';
+    await loadDocIndex();
+  }
+  // Select the file in the dropdown
+  const sel = document.getElementById('docFile');
+  const opt = Array.from(sel.options).find(o => o.value === file);
+  if (opt) { sel.value = file; }
+  await loadDocContent();
+}
+
+async function triggerMarketDataFetch(btn) {
+  const statusEl = document.getElementById('fetchStatus');
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Fetching…';
+  statusEl.textContent = '';
+  try {
+    const result = await fetch('/api/v1/market-data/fetch-previous-day', { method: 'POST' }).then(r => r.json());
+    const symbols = Object.keys(result);
+    const totalInserted = symbols.reduce((s, k) => s + (result[k].inserted || 0), 0);
+    const totalReceived = symbols.reduce((s, k) => s + (result[k].quotesReceived || 0), 0);
+    const summary = symbols.map(k => `${k}: ${result[k].inserted} new`).join(' · ');
+    statusEl.innerHTML = `<span style="color:var(--accent)">✓ Done</span> — ${totalInserted}/${totalReceived} candles inserted · ${summary}`;
+    showToast(`Fetch complete: ${totalInserted} candles inserted`);
+    await loadData();
+    await loadAdministrationData();
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:var(--accent3)">✗ Failed: ${escapeHtml(String(e))}</span>`;
+    showToast('Fetch failed — check Error Logs', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
+  }
+}
+
+async function triggerExchangeHistoryBackfill(btn) {
+  const statusEl = document.getElementById('backfillStatus');
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Backfilling...';
+  if (statusEl) statusEl.textContent = '';
+
+  try {
+    const result = await fetch('/api/mt4/backfill-history', { method: 'POST' }).then(r => r.json());
+    if ((result.status || '').toString().toLowerCase().startsWith('error')) {
+      throw new Error(result.message || 'History backfill failed');
+    }
+
+    const summary = `checked=${result.checked ?? 0}, imported=${result.imported ?? 0}, existing=${result.existing ?? 0}, skipped=${result.skipped ?? 0}`;
+    if (statusEl) statusEl.textContent = `Backfill complete: ${summary}`;
+    showToast(`Exchange history backfill complete (${summary})`);
+    await loadAdministrationData();
+    await loadData(false);
+  } catch (e) {
+    const msg = String(e.message || e);
+    if (statusEl) statusEl.textContent = `Backfill failed: ${msg}`;
+    showToast(`Exchange history backfill failed: ${msg}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
+/* ── Init ──────────────────────────────── */
+(async () => {
+  syncResponsiveLayout();
+  restoreDashboardMetricsDays();
+
+  // Restore counter-trend only toggle before first render
+  const savedCounterTrend = localStorage.getItem('cryptoproPostMortemCounterTrendOnly') || localStorage.getItem('fxproPostMortemCounterTrendOnly');
+  if (savedCounterTrend === '1') {
+    const cb = document.getElementById('postMortemCounterTrendOnly');
+    if (cb) cb.checked = true;
+  }
+
+  const savedCandlesTimeframe = localStorage.getItem('cryptoproCandlesTimeframe') || 'M1';
+  const candlesTimeframeSelect = document.getElementById('candlesTimeframe');
+  if (candlesTimeframeSelect) {
+    const hasOption = Array.from(candlesTimeframeSelect.options).some(o => o.value === savedCandlesTimeframe);
+    candlesTimeframeSelect.value = hasOption ? savedCandlesTimeframe : 'M1';
+  }
+  updateCandlesCardTitle(candlesTimeframeSelect?.value || 'M1');
+
+  initDashboardAutoRefresh();
+  await loadPairs();
+  await loadAccountsForDashboard();
+
+  // Restore saved account selection
+    const savedAccount = localStorage.getItem('cryptoproDashboardAccount') || localStorage.getItem('fxproDashboardAccount') || '';
+  const accountSel = document.getElementById('dashboardAccount');
+  if (accountSel && savedAccount) {
+    const validOption = Array.from(accountSel.options).some(o => o.value === savedAccount);
+    if (validOption) accountSel.value = savedAccount;
+  }
+
+  await loadData(false);
+  navigateByHash(window.location.hash);
+})();
+</script>
+</body>
+</html>
+

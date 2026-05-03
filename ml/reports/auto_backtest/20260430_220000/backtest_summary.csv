@@ -1,0 +1,4 @@
+symbol,sourceFile,replayedCandles,totalTrades,wins,losses,winRatePercent,netProfit,profitFactor,maxDrawdown,maxDrawdownPercent
+BTCUSDT,Binance_BTCUSDT_d.csv,3165,23,8,15,34.78,-26953.06,0.66,37389.34,358.26
+ETHUSDT,Binance_ETHUSDT_d.csv,3165,26,11,15,42.31,966.18,1.25,1184.94,390.03
+SOLUSDT,Binance_SOLUSDT_d.csv,2075,20,12,8,60.0,113.39,1.67,44.73,161.3

@@ -1,0 +1,35 @@
+﻿{
+    "version":  "20260426_060830",
+    "generatedAtUtc":  "2026-04-26T06:09:03.0906004Z",
+    "source":  {
+                   "inputDir":  "data",
+                   "pattern":  "Binance_*USDT_d.csv",
+                   "files":  [
+                                 "Binance_BTCUSDT_d.csv",
+                                 "Binance_ETHUSDT_d.csv",
+                                 "Binance_SOLUSDT_d.csv"
+                             ],
+                   "symbols":  [
+                                   "BTCUSDT",
+                                   "ETHUSDT",
+                                   "SOLUSDT"
+                               ]
+               },
+    "outputs":  {
+                    "candlesCsv":  "history_candles_daily.csv",
+                    "featuresCsv":  "ai_features_daily.csv",
+                    "datasetCard":  "dataset_card.md",
+                    "analysisDir":  "analysis",
+                    "copiedAnalysisFiles":  [
+                                                "backtest_metrics_by_symbol.csv",
+                                                "backtest_summary.csv",
+                                                "backtest_summary.json",
+                                                "equity_curves.csv"
+                                            ]
+                },
+    "stats":  {
+                  "candleRows":  8405,
+                  "featureRows":  8405,
+                  "trainableRows":  8402
+              }
+}
